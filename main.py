@@ -256,10 +256,10 @@ def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("phase", metavar="PHASE", choices=phases_list,
+    parser.add_argument("--phase", metavar="PHASE", choices=phases_list,
                         help="sets the network phase (allowed: train or test)")
 
-    parser.add_argument("-p", "--path", default=default_data_path,
+    parser.add_argument("--path", default=default_data_path,
                         help="specify the path where training data will be \
                               downloaded to or test data is stored")
 
