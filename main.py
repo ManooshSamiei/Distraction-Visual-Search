@@ -240,39 +240,39 @@ def test_model(dataset, paths, device):
             with open(paths["images"] + filename, "wb") as file:
                 file.write(output_file)
 
-    def main():
-        """The main function reads the command line arguments, invokes the
-           creation of appropriate path variables, and starts the training
-           or testing procedure for a model.
-        """
+def main():
+    """The main function reads the command line arguments, invokes the
+       creation of appropriate path variables, and starts the training
+       or testing procedure for a model.
+    """
 
-        phases_list = ["train", "test"]
+    phases_list = ["train", "test"]
 
-        # dataset = 'salicon' #input('Which dataset do you want to use? (enter salicon/mit1003) ')
-        dataset = 'cocosearch'
+    # dataset = 'salicon' #input('Which dataset do you want to use? (enter salicon/mit1003) ')
+    dataset = 'cocosearch'
 
-        default_data_path = "./"
+    default_data_path = "./"
 
-        parser = argparse.ArgumentParser(
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-        parser.add_argument("phase", metavar="PHASE", choices=phases_list,
-                            help="sets the network phase (allowed: train or test)")
+    parser.add_argument("phase", metavar="PHASE", choices=phases_list,
+                        help="sets the network phase (allowed: train or test)")
 
-        parser.add_argument("-p", "--path", default=default_data_path,
-                            help="specify the path where training data will be \
-                                  downloaded to or test data is stored")
+    parser.add_argument("-p", "--path", default=default_data_path,
+                        help="specify the path where training data will be \
+                              downloaded to or test data is stored")
 
-        args = parser.parse_args()
+    args = parser.parse_args()
 
-        paths = define_paths(args.path)
+    paths = define_paths(args.path)
 
-        tf.reset_default_graph()
+    tf.reset_default_graph()
 
-        if args.phase == "train":
-            train_model(dataset, paths, config.PARAMS["device"])
-        elif args.phase == "test":
-            test_model(dataset, paths, config.PARAMS["device"])
+    if args.phase == "train":
+        train_model(dataset, paths, config.PARAMS["device"])
+    elif args.phase == "test":
+        test_model(dataset, paths, config.PARAMS["device"])
 
-    if __name__ == "__main__":
-        main()
+if __name__ == "__main__":
+    main()
