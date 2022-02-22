@@ -25,7 +25,7 @@ def download_cocosearch(data_path):
                          downloaded and extracted to.
     """
 
-    print(">> Downloading COCOSearch18 dataset...", end="", flush=True)
+    '''print(">> Downloading COCOSearch18 dataset...", end="", flush=True)
 
     os.makedirs(data_path, exist_ok=True)
 
@@ -34,12 +34,12 @@ def download_cocosearch(data_path):
 
     for url in urls:
         filename = wget.download(url, data_path)
-        unzip(filename, data_path)
+        unzip(filename, data_path)'''
 
-    url = "https://drive.google.com/uc?export=download&id=1vEzgF54LPK2adlI7DdlXWGkYV76L-jjK"
+    '''url = "https://drive.google.com/uc?export=download&id=1vEzgF54LPK2adlI7DdlXWGkYV76L-jjK"
 
     gdown.download(url, data_path + '/targets.zip', quiet=False)
-    unzip(data_path + '/targets.zip', data_path)
+    unzip(data_path + '/targets.zip', data_path)'''
 
     # Downloading target object bounding box annotation
     url = "https://drive.google.com/uc?id=1OkpX_Md-lFwCo5TB_cq0Qxoe4oEB8eKG"

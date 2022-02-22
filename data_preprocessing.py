@@ -143,12 +143,41 @@ def preprocess_fixations(phase,
         img_resized_flip = cv2.flip(img_resized, 1)
         # img_resized_flip = cv2.flip(img_resized , 0)
         # print(task_img.split('_')[0])
-        targ_ind = str(random.randint(0, 4))
-        target = cv2.imread(dldir + '/targets/' + task_img.split('_')[
-            0] + '_' + targ_ind + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
-        target = cv2.resize(target, (64, 64), interpolation=cv2.INTER_AREA)
-        target_flip = cv2.flip(target, 1)
-        # img_resized=cv2.rectangle(img,(x1,y1),(x1+w_image,y1+h_image),(0,255,0),2)
+        
+        #targ_ind = str(random.randint(0, 4))
+        
+        target_0 = cv2.imread(dldir + '/targets/' + task_img.split('_')[
+            0] + '_' + '0' + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
+
+        target_1 = cv2.imread(dldir + '/targets/' + task_img.split('_')[
+            0] + '_' + '1' + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
+
+        target_2 = cv2.imread(dldir + '/targets/' + task_img.split('_')[
+            0] + '_' + '2' + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
+
+        target_3 = cv2.imread(dldir + '/targets/' + task_img.split('_')[
+            0] + '_' + '3' + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
+
+        target_4 = cv2.imread(dldir + '/targets/' + task_img.split('_')[
+            0] + '_' + '4' + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
+
+        target_0 = cv2.resize(target_0, (64, 64), interpolation=cv2.INTER_AREA)
+        target_flip_0 = cv2.flip(target_0, 1)
+
+        target_1 = cv2.resize(target_1, (64, 64), interpolation=cv2.INTER_AREA)
+        target_flip_1 = cv2.flip(target_1, 1)
+
+        target_2 = cv2.resize(target_2, (64, 64), interpolation=cv2.INTER_AREA)
+        target_flip_2 = cv2.flip(target_2, 1)
+
+        target_3 = cv2.resize(target_3, (64, 64), interpolation=cv2.INTER_AREA)
+        target_flip_3 = cv2.flip(target_3, 1)
+
+        target_4 = cv2.resize(target_4, (64, 64), interpolation=cv2.INTER_AREA)
+        target_flip_4 = cv2.flip(target_4, 1)
+
+        img_target_frame=cv2.rectangle(img,(x1,y1),(x1+w_image,y1+h_image),(0,255,0),2)
+        
         unblur = False
 
         if phase == 'train':
@@ -158,7 +187,15 @@ def preprocess_fixations(phase,
                 f = False
                 out_name = datadir + '/saliencymap/test/' + str(task_img)
                 destination = datadir + '/stimuli/test/' + str(task_img)
-                target_path = datadir + '/target/test/' + str(task_img)
+                target_path_0 = datadir + '/target_0/test/' + str(task_img)
+                target_path_1 = datadir + '/target_1/test/' + str(task_img)
+                target_path_2 = datadir + '/target_2/test/' + str(task_img)
+                target_path_3 = datadir + '/target_3/test/' + str(task_img)
+                target_path_4 = datadir + '/target_4/test/' + str(task_img)
+
+                img_target_rect_path = datadir + '/stimuli/test_targ_bbox/' + str(task_img)
+                cv2.imwrite(img_target_rect_path, img_target_frame)
+                
                 unblur = True
                 out_name_unblur = datadir + '/saliencymap/test_unblur/' + str(task_img)
 
@@ -166,19 +203,38 @@ def preprocess_fixations(phase,
                 f = True
                 out_name = datadir + '/saliencymap/train/' + str(task_img)
                 destination = datadir + '/stimuli/train/' + str(task_img)
-                target_path = datadir + '/target/train/' + str(task_img)
+
+                target_path_0 = datadir + '/target_0/train/' + str(task_img)
+                target_path_1 = datadir + '/target_1/train/' + str(task_img)
+                target_path_2 = datadir + '/target_2/train/' + str(task_img)
+                target_path_3 = datadir + '/target_3/train/' + str(task_img)
+                target_path_4 = datadir + '/target_4/train/' + str(task_img)
+
                 sal_out_flip = datadir + '/saliencymap/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
                     task_img.split('.')[1])
                 stim_out_flip = datadir + '/stimuli/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
                     task_img.split('.')[1])
-                tar_out_flip = datadir + '/target/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
-                    task_img.split('.')[1])
 
+                tar_out_flip_0 = datadir + '/target_0/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])
+                tar_out_flip_1 = datadir + '/target_1/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])
+                tar_out_flip_2 = datadir + '/target_2/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])
+                tar_out_flip_3 = datadir + '/target_3/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])
+                tar_out_flip_4 = datadir + '/target_4/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])
         else:
             f = False
             out_name = datadir + '/saliencymap/valid/' + str(task_img)
             destination = datadir + '/stimuli/valid/' + str(task_img)
-            target_path = datadir + '/target/valid/' + str(task_img)
+
+            target_path_0 = datadir + '/target_0/valid/' + str(task_img)
+            target_path_1 = datadir + '/target_1/valid/' + str(task_img)
+            target_path_2 = datadir + '/target_2/valid/' + str(task_img)
+            target_path_3 = datadir + '/target_3/valid/' + str(task_img)
+            target_path_4 = datadir + '/target_4/valid/' + str(task_img)
 
         heatmap_color = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
 
@@ -200,12 +256,20 @@ def preprocess_fixations(phase,
         # copyfile(source, destination)
         cv2.imwrite(destination, img_resized)
         cv2.imwrite(out_name, heatmap)
-        cv2.imwrite(target_path, target)
+        cv2.imwrite(target_path_0, target_0)
+        cv2.imwrite(target_path_1, target_1)
+        cv2.imwrite(target_path_2, target_2)
+        cv2.imwrite(target_path_3, target_3)
+        cv2.imwrite(target_path_4, target_4)
 
         if f and (str(task_img.split('_')[0]) not in not_augment):
             cv2.imwrite(stim_out_flip, img_resized_flip)
             cv2.imwrite(sal_out_flip, heatmap_flip)
-            cv2.imwrite(tar_out_flip, target_flip)
+            cv2.imwrite(tar_out_flip_0, target_flip_0)
+            cv2.imwrite(tar_out_flip_1, target_flip_1)
+            cv2.imwrite(tar_out_flip_2, target_flip_2)
+            cv2.imwrite(tar_out_flip_3, target_flip_3)
+            cv2.imwrite(tar_out_flip_4, target_flip_4)
 
         if task_img not in flat_test_task_img_pair:
             stimuli.append(img_resized)
@@ -312,10 +376,30 @@ if __name__ == '__main__':
     v_stimuli = os.path.join(stimuli, 'valid')
     te_stimuli = os.path.join(stimuli, 'test')
 
-    target = os.path.join(args.datadir, 'target')
-    tr_target = os.path.join(target, 'train')
-    v_target = os.path.join(target, 'valid')
-    te_target = os.path.join(target, 'test')
+    target_0 = os.path.join(args.datadir, 'target_0')
+    tr_target_0 = os.path.join(target_0, 'train')
+    v_target_0 = os.path.join(target_0, 'valid')
+    te_target_0 = os.path.join(target_0, 'test')
+
+    target_1 = os.path.join(args.datadir, 'target_1')
+    tr_target_1 = os.path.join(target_1, 'train')
+    v_target_1 = os.path.join(target_1, 'valid')
+    te_target_1 = os.path.join(target_1, 'test')
+
+    target_2 = os.path.join(args.datadir, 'target_2')
+    tr_target_2 = os.path.join(target_2, 'train')
+    v_target_2 = os.path.join(target_2, 'valid')
+    te_target_2 = os.path.join(target_2, 'test')
+
+    target_3 = os.path.join(args.datadir, 'target_3')
+    tr_target_3 = os.path.join(target_3, 'train')
+    v_target_3 = os.path.join(target_3, 'valid')
+    te_target_3 = os.path.join(target_3, 'test')
+
+    target_4 = os.path.join(args.datadir, 'target_4')
+    tr_target_4 = os.path.join(target_4, 'train')
+    v_target_4 = os.path.join(target_4, 'valid')
+    te_target_4 = os.path.join(target_4, 'test')
 
     os.makedirs(args.dldir, exist_ok=True)
     os.makedirs(args.datadir, exist_ok=True)
@@ -331,14 +415,34 @@ if __name__ == '__main__':
     os.makedirs(v_stimuli, exist_ok=True)
     os.makedirs(te_stimuli, exist_ok=True)
 
-    os.makedirs(target, exist_ok=True)
-    os.makedirs(tr_target, exist_ok=True)
-    os.makedirs(v_target, exist_ok=True)
-    os.makedirs(te_target, exist_ok=True)
+    os.makedirs(target_0, exist_ok=True)
+    os.makedirs(tr_target_0, exist_ok=True)
+    os.makedirs(v_target_0, exist_ok=True)
+    os.makedirs(te_target_0, exist_ok=True)
+
+    os.makedirs(target_1, exist_ok=True)
+    os.makedirs(tr_target_1, exist_ok=True)
+    os.makedirs(v_target_1, exist_ok=True)
+    os.makedirs(te_target_1, exist_ok=True)
+
+    os.makedirs(target_2, exist_ok=True)
+    os.makedirs(tr_target_2, exist_ok=True)
+    os.makedirs(v_target_2, exist_ok=True)
+    os.makedirs(te_target_2, exist_ok=True)
+
+    os.makedirs(target_3, exist_ok=True)
+    os.makedirs(tr_target_3, exist_ok=True)
+    os.makedirs(v_target_3, exist_ok=True)
+    os.makedirs(te_target_3, exist_ok=True)
+
+    os.makedirs(target_4, exist_ok=True)
+    os.makedirs(tr_target_4, exist_ok=True)
+    os.makedirs(v_target_4, exist_ok=True)
+    os.makedirs(te_target_4, exist_ok=True)
 
     # Downloading COCOSearch Dataset
 
-    download_cocosearch(args.dldir)
+    #download_cocosearch(args.dldir)
 
     dataset_root = args.dldir
 

@@ -4,7 +4,8 @@ from datetime import timedelta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 import numpy as np
-
+import loss
+import tensorflow as tf
 
 class History:
     """This class represents the training history of a model. It can load the
@@ -170,3 +171,50 @@ class Progbar:
         print(valid_output, flush=True)
 
         self._flush()
+
+class History_test:
+
+  'This class calculates the loss for all test images.'
+
+  def __init__(self):
+  
+    self.kl_test_error = 0
+    self.cc_test_error = 0
+    self.sim_test_error = 0
+    self.nss_test_error = 0
+    self.auc_test_error = 0
+    #self.sauc_test_error = 0
+
+
+  def normalize_map(self, y_pred):
+    # normalize the salience map (as done in MIT code)
+    norm_y_pred = (y_pred - tf.math.reduce_min(y_pred))/(tf.math.reduce_max(y_pred)-tf.math.reduce_min(y_pred))
+
+    return norm_y_pred
+ 
+  def update_test_step(self, test_error_kl, test_error_cc, test_error_sim, test_error_nss, test_error_auc):#, test_error_sauc):
+
+      self.kl_test_error += test_error_kl
+      self.cc_test_error += test_error_cc
+      self.sim_test_error += test_error_sim
+      self.nss_test_error += test_error_nss
+      self.auc_test_error += test_error_auc
+      #self.sauc_test_error += test_error_sauc
+
+      return kl_test_error, cc_test_error, sim_test_error,  nss_test_error, auc_test_error#, sauc_mean_test_error
+
+  def error(self, y_pred , y_true, y_true_binary, sess):
+      kld_error = loss.kld(y_true, y_pred)
+      kld_error = sess.run(kld_error)
+      cc_error = loss.cc(y_true, y_pred)
+      cc_error = sess.run(cc_error)
+      y_pred_n = self.normalize_map(y_pred)
+      y_true_n = self.normalize_map(y_true)
+      sim_error = loss.similarity(y_true_n, y_pred_n)
+      sim_error = sess.run(sim_error)
+      nss_error = loss.nss(y_true_binary, y_pred)
+      nss_error = sess.run(nss_error)
+      auc_error = loss.auc_judd(y_pred, y_true_binary)
+      #sauc_error = loss.auc_shuff(y_pred, y_true_binary, y_true_binary)
+      #kld_error , cc_error , sim_error = sess.run(kld_error , cc_error , sim_error)
+      return kld_error , cc_error , sim_error, nss_error, auc_error #,sauc_error

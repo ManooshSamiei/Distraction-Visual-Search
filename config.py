@@ -22,4 +22,5 @@ for download were trained on these image dimensions.
 
 DIMS = {
     "image_size_cocosearch": (512, 320),
+    "image_target_size_cocosearch": (64, 64)
 }
