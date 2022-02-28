@@ -3,9 +3,10 @@ import sys
 import numpy as np
 import tensorflow as tf
 import config
-
+import random 
 
 class COCOSEARCH:
+
     """This class represents the COCOSearch18 dataset. It consists of 3101
        target-present images. All stimuli are of size 1680x1050 pixels
        and are resized to 512x320 (height by width).
@@ -13,19 +14,19 @@ class COCOSEARCH:
     Attributes:
         n_train: Number of training instances as defined in the dataset.
         n_valid: Number of validation instances as defined in the dataset.
+
     Returns:
         tuple: A tuple that consists of dataset objects holding the training
                and validation set instances respectively.
-    .. seealso:: M. Jiang, S. Huang, J. Duan, Q. Zhao, SALICON: Saliency in
-                 context, Proceedings of the IEEE Conference on Computer Vision
-                 and Pattern Recognition (2015) 1072–1080.
     """
 
     n_train = 2823  # 95*2
     n_valid = 324  # 17*2
 
     def __init__(self, data_path):
-        self._target_size = config.DIMS["image_size_cocosearch"]
+
+        self._stimuli_size = config.DIMS["image_size_cocosearch"]
+        self._target_size = config.DIMS["image_target_size_cocosearch"]
 
         self._dir_stimuli_train = data_path + "cocosearch/stimuli/train"
         self._dir_stimuli_valid = data_path + "cocosearch/stimuli/valid"
@@ -33,10 +34,15 @@ class COCOSEARCH:
         self._dir_saliency_train = data_path + "cocosearch/saliencymap/train"
         self._dir_saliency_valid = data_path + "cocosearch/saliencymap/valid"
 
-        self._dir_target_train = data_path + "cocosearch/target/train"
-        self._dir_target_valid = data_path + "cocosearch/target/valid"
+        targ_ind_train = str(random.randint(0, 4))
+        targ_ind_valid = str(random.randint(0, 4))
+
+        self._dir_target_train = data_path + "cocosearch/target_" + targ_ind_train + "/train"
+        self._dir_target_valid = data_path + "cocosearch/target_" + targ_ind_valid + "/valid"
+
 
     def load_data(self):
+        
         n_train = 2823  # 95*2
         n_valid = 324  # 17*2
 
@@ -47,7 +53,7 @@ class COCOSEARCH:
         _check_consistency(zip(train_list_x, train_list_y, train_list_z), n_train)
 
         train_set = _fetch_dataset((train_list_x, train_list_y, train_list_z),
-                                   'train', self._target_size, True)
+                                    self._stimuli_size, self._target_size, True)
 
         valid_list_x = _get_file_list(self._dir_stimuli_valid)
         valid_list_y = _get_file_list(self._dir_saliency_valid)
@@ -56,12 +62,13 @@ class COCOSEARCH:
         _check_consistency(zip(valid_list_x, valid_list_y, valid_list_z), n_valid)
 
         valid_set = _fetch_dataset((valid_list_x, valid_list_y, valid_list_z),
-                                   'train', self._target_size, False)
+                                    self._stimuli_size, self._target_size, False)
 
         return (train_set, valid_set)
 
 
 class TEST:
+
     """This class represents test set instances used for inference through
        a trained network. All stimuli are resized to the preferred spatial
        dimensions of the chosen model. This can, however, lead to cases of
@@ -73,29 +80,34 @@ class TEST:
     n_test = 324  # 18
 
     def __init__(self, dataset, data_path):
-        self._target_size = config.DIMS["image_size_%s" % dataset]
+        
+        self._stimuli_size = config.DIMS["image_size_cocosearch"]
+        self._target_size = config.DIMS["image_target_size_cocosearch"]
+
+        targ_ind_test = str(random.randint(0, 4))
 
         self._dir_stimuli_test = data_path + "cocosearch/stimuli/test"
-        self._dir_target_test = data_path + "cocosearch/target/test"
+        self._dir_target_test = data_path + "cocosearch/target_"+ targ_ind_test + "/test"
         self._dir_saliency_test = data_path + "cocosearch/saliencymap/test"
-        self._dir_saliency_test_unblurred = data_path + "cocosearch/saliencymap/test_unblur"
+ 
 
     def load_data(self):
+
         n_test = 324  # 18
         test_list_x = _get_file_list(self._dir_stimuli_test)
         test_list_y = _get_file_list(self._dir_saliency_test)
         test_list_z = _get_file_list(self._dir_target_test)
-        test_list_h = _get_file_list(self._dir_saliency_test_unblurred)
 
-        _check_consistency(zip(test_list_x, test_list_y, test_list_z, test_list_h), n_test)
+        _check_consistency(zip(test_list_x, test_list_y, test_list_z), n_test)
 
-        test_set = _fetch_dataset((test_list_x, test_list_y, test_list_z, test_list_h), 'train', self._target_size,
+        test_set = _fetch_dataset((test_list_x, test_list_y, test_list_z), self._stimuli_size, self._target_size,
                                   False, online=True)
 
         return test_set
 
 
 def get_dataset_iterator(phase, dataset, data_path):
+
     """
     Entry point to make an initializable dataset iterator for either
        training or testing a model by calling the respective dataset class.
@@ -111,6 +123,7 @@ def get_dataset_iterator(phase, dataset, data_path):
     """
 
     if phase == "train":
+
         current_module = sys.modules[__name__]
         class_name = "%s" % dataset.upper()
 
@@ -127,6 +140,7 @@ def get_dataset_iterator(phase, dataset, data_path):
         return next_element, train_init_op, valid_init_op
 
     if phase == "test":
+
         test_class = TEST(dataset, data_path)
         test_set = test_class.load_data()
 
@@ -139,7 +153,7 @@ def get_dataset_iterator(phase, dataset, data_path):
         return next_element, init_op
 
 
-def postprocess_saliency_map(saliency_map, target_size, img):
+def postprocess_saliency_map(saliency_map, target_size):
     """This function resizes and crops a single saliency map to the original
        dimensions of the input image. The output is then encoded as a jpeg
        file suitable for saving to disk.
@@ -151,48 +165,21 @@ def postprocess_saliency_map(saliency_map, target_size, img):
     Returns:
         tensor, str: A tensor of the saliency map encoded as a jpeg file.
     """
-    # print(tf.shape(saliency_map))
-    '''saliency_map = tf.squeeze(saliency_map)
-    img = tf.squeeze(img)'''
 
-    saliency_map *= 255.0
-    saliency_map = _resize_image(saliency_map, 'train', target_size, True)
+    saliency_map_np = saliency_map * 255.0
+    saliency_map = _resize_image(saliency_map_np , target_size, True)
 
-    '''indices = tf.to_int32(tf.round(saliency_map))
-    cm = matplotlib.cm.jet
-    colors = cm(np.arange(256))[:, :3]
-    colors = tf.constant(colors, dtype=tf.float32)
-
-    heatmap_color = tf.gather(colors, indices)'''
-
-    # saliency_map = _resize_image(saliency_map, 'train' , target_size, True)
-    # saliency_map = _crop_image(saliency_map, target_size)
-
-    # Create mask
-
-    '''threshold = tf.constant(10, dtype=saliency_map.dtype, shape=(target_size[1] , target_size[0]) , name='Const')
-    mask = tf.where(saliency_map<=threshold, tf.ones_like(saliency_map), tf.zeros_like(saliency_map))
-
-    mask = tf.reshape(mask, (target_size[1] , target_size[0]))
-    mask = tf.stack([mask, mask, mask], axis=2)'''
-
-    # Marge images
-    '''opposite = tf.constant(1, dtype=mask.dtype, shape=(target_size[1] , target_size[0] , 3) , name='Const_1') - mask
-    marge = tf.math.multiply(img,mask) + tf.math.multiply(heatmap_color, opposite)
-
-    alpha = tf.constant(0.5, dtype=img.dtype, shape=(target_size[1] , target_size[0] , 3), name='Const_2')
-    marge = tf.math.multiply(img ,  alpha) + tf.math.multiply( marge ,  alpha)
-    marge = tf.cast( marge, tf.uint8)'''
 
     saliency_map = tf.round(saliency_map)
     saliency_map = tf.cast(saliency_map, tf.uint8)
 
-    saliency_map_jpeg = tf.image.encode_jpeg(saliency_map, "grayscale", 100)
+    saliency_map_jpg = tf.image.encode_jpeg(saliency_map, "grayscale", 100)
 
-    return saliency_map_jpeg
+    return saliency_map_jpg, saliency_map_np 
 
 
-def _fetch_dataset(files, phase, target_size, shuffle, online=False):
+def _fetch_dataset(files, stimuli_size, target_size, shuffle, online=False):
+
     """Here the list of file directories is shuffled (only when training),
        loaded, batched, and prefetched to ensure high GPU utilization.
     Args:
@@ -212,7 +199,7 @@ def _fetch_dataset(files, phase, target_size, shuffle, online=False):
     if shuffle:
         dataset = dataset.shuffle(len(files[0]))
 
-    dataset = dataset.map(lambda *files: _parse_function(files, phase, target_size),
+    dataset = dataset.map(lambda *files: _parse_function(files, stimuli_size, target_size),
                           num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
     batch_size = 1 if online else config.PARAMS["batch_size"]
@@ -223,7 +210,7 @@ def _fetch_dataset(files, phase, target_size, shuffle, online=False):
     return dataset
 
 
-def _parse_function(files, phase, target_size):
+def _parse_function(files, stimuli_size, target_size):
     """This function reads image data dependent on the image type and
        whether it constitutes a stimulus or saliency map. All instances
        are then reshaped and padded to yield the target dimensionality.
@@ -241,6 +228,7 @@ def _parse_function(files, phase, target_size):
     image_list = []
 
     for count, filename in enumerate(files):
+
         image_str = tf.read_file(filename)
         channels = 3 if (count == 0 or count == 2) else 1
         image = tf.cond(tf.image.is_jpeg(image_str),
@@ -250,12 +238,15 @@ def _parse_function(files, phase, target_size):
                                                     channels=channels))
         original_size = tf.shape(image)[:2]
 
-        image = _resize_image(image, phase, target_size)
+        if count == 2:
+            image = _resize_image(image, target_size)
+        
+        elif count ==0 or count==1:
 
-        if phase == 'test':
-            image = _pad_image(image, target_size)
+            image = _resize_image(image, stimuli_size)
 
         image_list.append(image)
+
 
     image_list.append(original_size)
     image_list.append(files)
@@ -263,7 +254,7 @@ def _parse_function(files, phase, target_size):
     return image_list
 
 
-def _resize_image(image, target_size, phase, overfull=False):
+def _resize_image(image, target_size, overfull=False):
     """This resizing procedure preserves the original aspect ratio and might be
        followed by padding or cropping. Depending on whether the target size is
        smaller or larger than the current image size, the area or bicubic
@@ -285,20 +276,7 @@ def _resize_image(image, target_size, phase, overfull=False):
 
     current_size = tf.shape(image)[:2]
 
-    if phase == 'test':
-        height_ratio = target_size[0] / current_size[0]
-        width_ratio = target_size[1] / current_size[1]
-
-        if overfull:
-            target_ratio = tf.maximum(height_ratio, width_ratio)
-        else:
-            target_ratio = tf.minimum(height_ratio, width_ratio)
-
-        target_size = tf.cast(current_size, tf.float64) * target_ratio
-        target_size = tf.cast(tf.round(target_size), tf.int32)
-
-    else:
-        target_size = tf.cast(tf.round(current_size), tf.int32)
+    target_size = tf.cast(tf.round(current_size), tf.int32)
 
     shrinking = tf.cond(tf.logical_or(current_size[0] > target_size[0],
                                       current_size[1] > target_size[1]),
@@ -441,3 +419,5 @@ def _check_consistency(zipped_file_lists, n_total_files):
         file_names = [entry.replace("_fixPts", "") for entry in file_names]
 
         assert len(set(file_names)) == 1, "File name mismatch"
+
+    

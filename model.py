@@ -79,11 +79,16 @@ class MSINET:
                                    data_format=self._data_format,
                                    name="conv3/conv3_1", reuse=tf.AUTO_REUSE)
 
+        layer07 = tf.layers.dropout(layer07, rate=0.3)
+
+
         layer08 = tf.layers.conv2d(layer07, 256, 3,
                                    padding="same",
                                    activation=tf.nn.relu,
                                    data_format=self._data_format,
                                    name="conv3/conv3_2", reuse=tf.AUTO_REUSE)
+
+        layer08 = tf.layers.dropout(layer08, rate=0.3)
 
         layer09 = tf.layers.conv2d(layer08, 256, 3,
                                    padding="same",

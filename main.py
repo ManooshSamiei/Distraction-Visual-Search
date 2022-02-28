@@ -8,6 +8,8 @@ import model
 import utils
 import random
 import sys
+import cv2
+import metrics
 
 seed_value = 32
 os.environ['PYTHONHASHSEED'] = str(seed_value)
@@ -17,7 +19,6 @@ tf.random.set_random_seed(seed_value)
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 tf.logging.set_verbosity(tf.logging.ERROR)
-
 
 def define_paths(current_path):
     """A helper function to define all relevant path elements for the
@@ -30,9 +31,9 @@ def define_paths(current_path):
         dict: A dictionary with all path elements.
     """
 
-    data_path = current_path
-    results_path = current_path + "/results/"
-    weights_path = current_path + "/weights/"
+    data_path = current_path 
+    results_path = current_path + "results/"
+    weights_path = current_path + "weights/"
 
     history_path = results_path + "history/"
     images_path = results_path + "images/"
@@ -69,7 +70,7 @@ def train_model(dataset, paths, device):
 
     next_element, train_init_op, valid_init_op = iterator
 
-    input_images, ground_truths, input_targets = next_element[:3]
+    input_images, ground_truths, input_targets  = next_element[:3]
     ground_truths = tf.divide(ground_truths, 255)
 
     input_plhd = tf.placeholder_with_default(input_images,
@@ -79,6 +80,7 @@ def train_model(dataset, paths, device):
     input_target_img = tf.placeholder_with_default(input_targets,
                                                    (None, None, None, 3),
                                                    name="input_2")
+
     msinet = model.MSINET()
 
     feature_map_stimuli = msinet.forward(input_plhd)
@@ -92,9 +94,8 @@ def train_model(dataset, paths, device):
     optimizer, loss = msinet.train(ground_truths, predicted_maps,
                                    config.PARAMS["learning_rate"])
 
-    curr_module = sys.modules[__name__]
-    n_train_data = getattr(curr_module, dataset.upper()).n_train
-    n_valid_data = getattr(curr_module, dataset.upper()).n_valid
+    n_train_data = getattr(data, dataset.upper()).n_train
+    n_valid_data = getattr(data, dataset.upper()).n_valid
 
     n_train_batches = int(np.ceil(n_train_data / config.PARAMS["batch_size"]))
     n_valid_batches = int(np.ceil(n_valid_data / config.PARAMS["batch_size"]))
@@ -111,7 +112,9 @@ def train_model(dataset, paths, device):
                             config.PARAMS["n_epochs"],
                             history.prior_epochs)
 
+
     with tf.Session() as sess:
+        
         sess.run(tf.global_variables_initializer())
         saver = msinet.restore(sess, dataset, paths, device)
         writer = tf.summary.FileWriter('./tflogs', sess.graph)
@@ -143,7 +146,7 @@ def train_model(dataset, paths, device):
             history.save_history()
 
             progbar.write_summary(history.get_mean_train_error(),
-                                  history.get_mean_valid_error())
+                                history.get_mean_valid_error())
 
             if history.valid_history[-1] == min(history.valid_history):
                 msinet.save(saver, sess, dataset, paths["best"], device)
@@ -170,7 +173,7 @@ def test_model(dataset, paths, device):
 
     # input_images, ground_truths, input_targets = next_element[:2]
     # input_images, input_targets = next_element[:2]
-    input_images, ground_truths, input_targets, ground_truths_unblur, original, file_path = next_element
+    input_images, ground_truths, input_targets, original, file_path = next_element
 
     original_shape = (512, 320)
     # file_path = next_element[0][-1]
@@ -189,58 +192,75 @@ def test_model(dataset, paths, device):
     predicted_maps = tf.squeeze(predicted_maps, axis=0)
     input_images = tf.squeeze(input_images, axis=0)
     # print(tf.shape(predicted_maps))
-    jpeg = data.postprocess_saliency_map(predicted_maps[0], original_shape, input_images)
-
-    curr_module = sys.modules[__name__]
-    n_test_data = getattr(curr_module, 'TEST').n_test
-
-    history_test = utils.History_test(n_test_data)
+    jpeg , npy = data.postprocess_saliency_map(predicted_maps[0], original_shape)
+    
+    n_test_data = getattr(data, 'TEST').n_test
 
     # jpeg = tf.transpose(jpeg , (1,2,0) )
     print(">> Start testing with %s %s model..." % (dataset.upper(), device))
+
+    m_kld_error, m_cc_error, m_sim_error, m_nss_error, m_auc_error = 0,0,0,0,0
 
     with tf.Session() as sess:
         sess.run(init_op)
 
         while True:
             try:
-                # print(tf.shape(sess.run(input_images)))
-                # print(tf.shape(sess.run(jpeg)))
 
-                # print(input_images[-1])
+                output_file_jpeg, output_file_npy, path = sess.run(
+                    [jpeg, npy, file_path])
 
-                output_file, path, y_pred, y_true, y_true_binary = sess.run(
-                    [jpeg, file_path, predicted_maps, ground_truths, ground_truths_unblur])
-
-                kld_error, cc_error, sim_error, nss_error, auc_error = history_test.error(y_pred * 255, y_true,
-                                                                                          y_true_binary, sess)
-
-                # print('KL divergence', kld_error)
-                # print('correlation coefficient', cc_error)
-                # print('similarity metric', sim_error)
-
-                history_test.update_test_step(kld_error, cc_error, sim_error, nss_error, auc_error)  # , sauc_error)
-
-                # print(sess.run([tf.math.reduce_max(ground_truths)]))
-                # print(tf.shape(predicted_maps) )
-                # print(sess.run([tf.math.reduce_max(predicted_maps)]))
-
-                # print(output_file.shape)
             except tf.errors.OutOfRangeError:
                 break
+
             # print(path)
             path = path[0][0].decode("utf-8")
 
             filename = os.path.basename(path)
             filename = os.path.splitext(filename)[0]
-            filename += ".jpg"
+            filename_jpeg = filename + ".jpg"
+            filename_npy = filename + ".npy"
 
             os.makedirs(paths["images"], exist_ok=True)
 
-            with open(paths["images"] + filename, "wb") as file:
-                file.write(output_file)
+            with open(paths["images"] + filename_jpeg, "wb") as file:
+                file.write(output_file_jpeg)
+
+            with open(paths["images"] + filename_npy, "wb") as file:
+                np.save(file, output_file_npy)
+               
+
+def jet_map(paths, threshold=30, alpha=0.5):
+
+    test_data_path = paths['data'] + 'cocosearch/stimuli/test_targ_bbox/'
+    prediction_path = paths['images']
+    output_dir = paths['images'] + 'images_jet/'
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    for subdir, dirs, files in os.walk(test_data_path):
+        for file in files:
+            if file.lower().endswith((".png", ".jpg", ".jpeg")):
+  
+              img = cv2.imread(test_data_path + file)
+              heatmap = cv2.imread( prediction_path + file)
+
+              heatmap_color = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
+              
+              # Create mask
+              mask = np.where(heatmap<=threshold, 1, 0)
+              mask = np.reshape(mask, (img.shape[0] , img.shape[1], 3))
+
+              # Marge images
+              marge = img*mask + heatmap_color*(1-mask)
+              marge = marge.astype("uint8")
+
+              marge = cv2.addWeighted(img, 1-alpha, marge, alpha,0)
+              cv2.imwrite( output_dir + file ,marge)
 
 def main():
+    
     """The main function reads the command line arguments, invokes the
        creation of appropriate path variables, and starts the training
        or testing procedure for a model.
@@ -256,12 +276,15 @@ def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("--phase", metavar="PHASE", choices=phases_list,
+    parser.add_argument("--phase", metavar="PHASE", choices=phases_list,  type=str,
                         help="sets the network phase (allowed: train or test)")
 
-    parser.add_argument("--path", default=default_data_path,
+    parser.add_argument("--path", default=default_data_path,  type=str, 
                         help="specify the path where training data will be \
                               downloaded to or test data is stored")
+
+    parser.add_argument("--threshold", default=30,  type=int,
+                        help="jet map threshold for predicted saliency maps.")
 
     args = parser.parse_args()
 
@@ -273,6 +296,10 @@ def main():
         train_model(dataset, paths, config.PARAMS["device"])
     elif args.phase == "test":
         test_model(dataset, paths, config.PARAMS["device"])
+
+    jet_map(paths, args.threshold, alpha=0.5)
+
+        
 
 if __name__ == "__main__":
     main()

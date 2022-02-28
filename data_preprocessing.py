@@ -126,12 +126,12 @@ def preprocess_fixations(phase,
 
         # Normalization
         heatmap = heatmap / np.amax(heatmap)
-        heatmap = heatmap * 255
-        heatmap = heatmap.astype("uint8")
+        heatmap_np = heatmap * 255
+        heatmap = heatmap_np.astype("uint8")
 
         heatmap_unblurred = heatmap_unblurred / np.amax(heatmap_unblurred)
-        heatmap_unblurred = heatmap_unblurred * 255
-        heatmap_unblurred = heatmap_unblurred.astype("uint8")
+        heatmap_unblurred_np = heatmap_unblurred * 255
+        heatmap_unblurred = heatmap_unblurred_np.astype("uint8")
 
         source = dldir + '/images/' + str(task_img.split('_')[0]) + '/' + str(task_img.split('_')[1])
         heatmap_flip = cv2.flip(heatmap, 1)
@@ -176,7 +176,7 @@ def preprocess_fixations(phase,
         target_4 = cv2.resize(target_4, (64, 64), interpolation=cv2.INTER_AREA)
         target_flip_4 = cv2.flip(target_4, 1)
 
-        img_target_frame=cv2.rectangle(img,(x1,y1),(x1+w_image,y1+h_image),(0,255,0),2)
+        img_target_frame=cv2.rectangle(img_resized.copy(),(x1,y1),(x1+w_image,y1+h_image),(0,255,0),2)
         
         unblur = False
 
@@ -186,6 +186,11 @@ def preprocess_fixations(phase,
             if task_img in flat_test_task_img_pair:
                 f = False
                 out_name = datadir + '/saliencymap/test/' + str(task_img)
+                out_name_np = datadir + '/saliencymap/test/' + os.path.splitext(str(task_img))[0]+'.npy'
+                
+                with open(out_name_np, "wb") as file:
+                    np.save(file, heatmap_np )
+
                 destination = datadir + '/stimuli/test/' + str(task_img)
                 target_path_0 = datadir + '/target_0/test/' + str(task_img)
                 target_path_1 = datadir + '/target_1/test/' + str(task_img)
@@ -198,6 +203,7 @@ def preprocess_fixations(phase,
                 
                 unblur = True
                 out_name_unblur = datadir + '/saliencymap/test_unblur/' + str(task_img)
+                out_name_unblur_npy = datadir + '/saliencymap/test_unblur/' + os.path.splitext(str(task_img))[0]+'.npy'
 
             else:
                 f = True
@@ -280,6 +286,8 @@ def preprocess_fixations(phase,
 
         if unblur:
             cv2.imwrite(out_name_unblur, heatmap_unblurred)
+            with open(out_name_unblur_npy, "wb") as file:
+                    np.save(file, heatmap_unblurred_np)
 
     return fix_labels, stimuli, heat_maps_list
 
@@ -375,6 +383,7 @@ if __name__ == '__main__':
     tr_stimuli = os.path.join(stimuli, 'train')
     v_stimuli = os.path.join(stimuli, 'valid')
     te_stimuli = os.path.join(stimuli, 'test')
+    targ_t_stimuli = os.path.join(stimuli, 'test_targ_bbox')
 
     target_0 = os.path.join(args.datadir, 'target_0')
     tr_target_0 = os.path.join(target_0, 'train')
@@ -414,6 +423,7 @@ if __name__ == '__main__':
     os.makedirs(tr_stimuli, exist_ok=True)
     os.makedirs(v_stimuli, exist_ok=True)
     os.makedirs(te_stimuli, exist_ok=True)
+    os.makedirs( targ_t_stimuli, exist_ok=True)
 
     os.makedirs(target_0, exist_ok=True)
     os.makedirs(tr_target_0, exist_ok=True)
@@ -442,7 +452,7 @@ if __name__ == '__main__':
 
     # Downloading COCOSearch Dataset
 
-    #download_cocosearch(args.dldir)
+    download_cocosearch(args.dldir)
 
     dataset_root = args.dldir
 
