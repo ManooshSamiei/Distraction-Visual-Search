@@ -296,66 +296,6 @@ def _resize_image(image, target_size, overfull=False):
     return image
 
 
-def _pad_image(image, target_size):
-    """A single image, either stimulus or saliency map, will be padded
-       symmetrically with the constant value 126 or 0 respectively.
-    Args:
-        image (tensor, float32): 3D tensor with the values of the image data.
-        target_size (tuple, int): A tuple that specifies the size to which
-                                  the data will be resized.
-    Returns:
-        tensor, float32: 3D tensor that holds the values of the padded image.
-    """
-
-    current_size = tf.shape(image)
-
-    pad_constant_value = tf.cond(tf.equal(current_size[2], 3),
-                                 lambda: tf.constant(126.0),
-                                 lambda: tf.constant(0.0))
-
-    pad_vertical = (target_size[0] - current_size[0]) / 2
-    pad_horizontal = (target_size[1] - current_size[1]) / 2
-
-    pad_top = tf.floor(pad_vertical)
-    pad_bottom = tf.ceil(pad_vertical)
-    pad_left = tf.floor(pad_horizontal)
-    pad_right = tf.ceil(pad_horizontal)
-
-    padding = [[pad_top, pad_bottom], [pad_left, pad_right], [0, 0]]
-    image = tf.pad(image, padding, constant_values=pad_constant_value)
-
-    return image
-
-
-def _crop_image(image, target_size):
-    """A single saliency map will be cropped according the specified target
-       size by extracting the central region of the image and correctly
-       removing the added padding.
-    Args:
-        image (tensor, float32): 3D tensor with the values of a saliency map.
-        target_size (tensor, int32): 2D tensor that specifies the size to
-                                     which the data will be cropped.
-    Returns:
-        tensor, float32: 3D tensor that holds the values of the saliency map
-                         with cropped dimensionality.
-    """
-
-    current_size = tf.shape(image)[:2]
-
-    crop_vertical = (current_size[0] - target_size[0]) / 2
-    crop_horizontal = (current_size[1] - target_size[1]) / 2
-
-    crop_top = tf.cast(tf.floor(crop_vertical), tf.int32)
-    crop_left = tf.cast(tf.floor(crop_horizontal), tf.int32)
-
-    border_bottom = crop_top + target_size[0]
-    border_right = crop_left + target_size[1]
-
-    image = image[crop_top:border_bottom, crop_left:border_right, :]
-
-    return image
-
-
 def _get_file_list(data_path):
     """This function detects all image files within the specified parent
        directory for either training or testing. The path content cannot

@@ -89,8 +89,6 @@ def train_model(dataset, paths, device):
 
     predicted_maps = msinet.output_stream(feature_map_stimuli, feature_map_target)
 
-    # max_out = tf.math.reduce_min(predicted_maps)
-
     optimizer, loss = msinet.train(ground_truths, predicted_maps,
                                    config.PARAMS["learning_rate"])
 
@@ -124,11 +122,8 @@ def train_model(dataset, paths, device):
             sess.run(train_init_op)
 
             for batch in range(n_train_batches):
-                # print((sess.run([ predicted_maps])).shape)#, ground_truths, input_targets))
-                _, error = sess.run([optimizer, loss])
-                # print(sess.run([tf.math.reduce_max(ground_truths)]))
-                # print(tf.shape(predicted_maps) )
-                # print(sess.run([tf.math.reduce_max(predicted_maps)]))
+
+                _ , error = sess.run([optimizer, loss])
 
                 history.update_train_step(error)
                 progbar.update_train_step(batch)
@@ -171,12 +166,10 @@ def test_model(dataset, paths, device):
 
     next_element, init_op = iterator
 
-    # input_images, ground_truths, input_targets = next_element[:2]
-    # input_images, input_targets = next_element[:2]
     input_images, ground_truths, input_targets, original, file_path = next_element
 
     original_shape = (512, 320)
-    # file_path = next_element[0][-1]
+
     graph_def = tf.GraphDef()
 
     model_name = "model_%s_%s.pb" % (dataset, device)
@@ -188,15 +181,13 @@ def test_model(dataset, paths, device):
     predicted_maps = tf.import_graph_def(graph_def,
                                          input_map={"input": input_images, "input_2": input_targets},
                                          return_elements=["output:0"])
-    # p_map = predicted_maps[0]
+
     predicted_maps = tf.squeeze(predicted_maps, axis=0)
     input_images = tf.squeeze(input_images, axis=0)
-    # print(tf.shape(predicted_maps))
     jpeg , npy = data.postprocess_saliency_map(predicted_maps[0], original_shape)
     
     n_test_data = getattr(data, 'TEST').n_test
 
-    # jpeg = tf.transpose(jpeg , (1,2,0) )
     print(">> Start testing with %s %s model..." % (dataset.upper(), device))
 
     m_kld_error, m_cc_error, m_sim_error, m_nss_error, m_auc_error = 0,0,0,0,0
@@ -213,7 +204,6 @@ def test_model(dataset, paths, device):
             except tf.errors.OutOfRangeError:
                 break
 
-            # print(path)
             path = path[0][0].decode("utf-8")
 
             filename = os.path.basename(path)
@@ -232,9 +222,22 @@ def test_model(dataset, paths, device):
 
 def jet_map(paths, threshold=30, alpha=0.5):
 
+    """creates the jet map of predicted fixation density maps
+       for the test data.
+    Args:
+        paths (str): paths to the test search stimuli and results folder
+        threshold (int): threshold used to generate a mask of predicted density maps.
+        alpha (float): weight for overlaying the get color map and the original image
+    """
+
     test_data_path = paths['data'] + 'cocosearch/stimuli/test_targ_bbox/'
     prediction_path = paths['images']
     output_dir = paths['images'] + 'images_jet/'
+    gnd_dir = paths['data'] + 'cocosearch/saliencymap/test/'
+    gnd_output_dir = paths['images'] + 'groundtruth_jet/'
+
+    if not os.path.exists(gnd_output_dir):
+        os.makedirs(gnd_output_dir)
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -242,10 +245,10 @@ def jet_map(paths, threshold=30, alpha=0.5):
     for subdir, dirs, files in os.walk(test_data_path):
         for file in files:
             if file.lower().endswith((".png", ".jpg", ".jpeg")):
-  
-              img = cv2.imread(test_data_path + file)
-              heatmap = cv2.imread( prediction_path + file)
 
+              ##predicted Saliency
+              img = cv2.imread(test_data_path + file)
+              heatmap = cv2.imread(prediction_path + file)
               heatmap_color = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
               
               # Create mask
@@ -259,6 +262,21 @@ def jet_map(paths, threshold=30, alpha=0.5):
               marge = cv2.addWeighted(img, 1-alpha, marge, alpha,0)
               cv2.imwrite( output_dir + file ,marge)
 
+              ##Groundtruth saliency
+              heatmap_gnd = cv2.imread(gnd_dir + file)
+              heatmap_gnd_color = cv2.applyColorMap(heatmap_gnd, cv2.COLORMAP_JET)
+              
+              # Create mask
+              mask_gnd = np.where(heatmap_gnd<=threshold, 1, 0)
+              mask_gnd = np.reshape(mask_gnd, (img.shape[0] , img.shape[1], 3))
+
+              # Marge images
+              marge_gnd = img*mask_gnd + heatmap_gnd_color*(1-mask_gnd)
+              marge_gnd = marge_gnd.astype("uint8")
+
+              marge_gnd = cv2.addWeighted(img, 1-alpha, marge_gnd, alpha,0)
+              cv2.imwrite(gnd_output_dir + file , marge_gnd)
+
 def main():
     
     """The main function reads the command line arguments, invokes the
@@ -268,7 +286,6 @@ def main():
 
     phases_list = ["train", "test"]
 
-    # dataset = 'salicon' #input('Which dataset do you want to use? (enter salicon/mit1003) ')
     dataset = 'cocosearch'
 
     default_data_path = "./"
@@ -298,8 +315,6 @@ def main():
         test_model(dataset, paths, config.PARAMS["device"])
 
     jet_map(paths, args.threshold, alpha=0.5)
-
-        
 
 if __name__ == "__main__":
     main()

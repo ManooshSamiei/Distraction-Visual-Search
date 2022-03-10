@@ -79,22 +79,19 @@ class MSINET:
                                    data_format=self._data_format,
                                    name="conv3/conv3_1", reuse=tf.AUTO_REUSE)
 
-        layer07 = tf.layers.dropout(layer07, rate=0.3)
-
-
         layer08 = tf.layers.conv2d(layer07, 256, 3,
                                    padding="same",
                                    activation=tf.nn.relu,
                                    data_format=self._data_format,
                                    name="conv3/conv3_2", reuse=tf.AUTO_REUSE)
 
-        layer08 = tf.layers.dropout(layer08, rate=0.3)
-
         layer09 = tf.layers.conv2d(layer08, 256, 3,
                                    padding="same",
                                    activation=tf.nn.relu,
                                    data_format=self._data_format,
                                    name="conv3/conv3_3", reuse=tf.AUTO_REUSE)
+
+        #layer09 = tf.layers.dropout(layer09, rate=0.5)
 
         layer10 = tf.layers.max_pooling2d(layer09, 2, 2,
                                           data_format=self._data_format)
@@ -116,6 +113,8 @@ class MSINET:
                                    activation=tf.nn.relu,
                                    data_format=self._data_format,
                                    name="conv4/conv4_3", reuse=tf.AUTO_REUSE)
+
+        #layer13 = tf.layers.dropout(layer13, rate=0.5)
 
         layer14 = tf.layers.max_pooling2d(layer13, 2, 1,
                                           padding="same",
@@ -141,6 +140,8 @@ class MSINET:
                                    dilation_rate=2,
                                    data_format=self._data_format,
                                    name="conv5/conv5_3", reuse=tf.AUTO_REUSE)
+
+        #layer17 = tf.layers.dropout(layer17, rate=0.5)
 
         layer18 = tf.layers.max_pooling2d(layer17, 2, 1,
                                           padding="same",
@@ -264,34 +265,16 @@ class MSINET:
 
     def _overlay(self, feature1, feature2):
 
-        '''overlay_output = tf.layers.conv2d(feature1, 1, 3,
-                                  padding="same",
-                                  data_format=self._data_format,
-                                  name="decoder/conv4")'''
 
-        '''shape = tf.shape(feature2)
-        feature2 = self._upsample(feature2, shape, 8)
-        shape2 = tf.shape(feature1)
-        feature1 = self._upsample(feature1, shape2, 8)'''
         shape_channel = (feature2.get_shape())[1]
         feature2 = tf.squeeze(feature2, axis=0)
-        print(feature2.get_shape())
         feature2 = tf.transpose(feature2, [1, 2, 0])
         feature2 = tf.expand_dims(feature2, axis=3)
-        print(feature2.get_shape())
-        # feature2 = tf.repeat(feature2 , repeats=tf.shape(feature2)[2] , axis=3)
-        # feature2 = tf.stack(tf.shape(feature2)[2]*[feature2], axis=3)
         feature2 = tf.concat(shape_channel * [feature2], axis=3)
-        print(feature2.get_shape())
         feature2 = tf.cast(feature2, dtype=tf.float32)
+
         overlay_output = tf.nn.conv2d(feature1, feature2, strides=[1, 1, 1, 1], padding='SAME', data_format='NCHW',
                                       name="overlay")
-
-        print(overlay_output.get_shape())
-        # overlay_output = self._upsample(overlay_output, shape, 8)
-
-        '''if self._data_format == "channels_first":
-            overlay_output = tf.transpose(overlay_output, (0, 2, 3, 1))'''
 
         self._output = overlay_output
 
@@ -348,8 +331,8 @@ class MSINET:
             self._mapping[key] = var
 
     def forward(self, stimuli):
-        """Public method to forward RGB images through the whole network
-           architecture and retrieve the resulting output.
+        """Public method to forward RGB images through the feature 
+            extraction parts of the network.
         Args:
             images (tensor, float32): A 4D tensor that holds the values of the
                                       raw input images.
@@ -360,11 +343,12 @@ class MSINET:
 
         self._encoder(stimuli)
         self._aspp(self._output)
-        # self._decoder(self._output)
 
         return self._output
 
     def output_stream(self, stimuli_features, target_features):
+        """Contains the output of the network, which is the
+            predicted fixation density map."""
 
         self._overlay(stimuli_features, target_features)
         self._decoder(self._output)
@@ -385,10 +369,23 @@ class MSINET:
         """
 
         error = loss.kld(ground_truth, predicted_maps)
-        optimizer = tf.train.AdamOptimizer(learning_rate)
-        optimizer = optimizer.minimize(error)
-        # acc, acc_op = tf.metrics.accuracy(ground_truth, predicted_maps)
 
+        global_step = tf.train.get_or_create_global_step()
+
+        adjusted_global_step = global_step
+
+        base_learning_rate = learning_rate
+
+        '''learning_rate = tf.train.polynomial_decay(
+            base_learning_rate,
+            adjusted_global_step,
+            config.PARAMS["n_training_steps"],
+            end_learning_rate=0,
+            power=config.PARAMS["learning_power"])'''
+
+        optimizer = tf.train.AdamOptimizer(learning_rate)              
+        #optimizer = tf.train.MomentumOptimizer(learning_rate, config.PARAMS["momentum"])
+        optimizer = optimizer.minimize(error)  
         return optimizer, error
 
     def save(self, saver, sess, dataset, path, device):

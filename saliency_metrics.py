@@ -27,7 +27,7 @@ def compute_saliency_metrics(data_path, use_pysaliency):
     dir_saliency_test = data_path + "cocosearch/saliencymap/test"
     dir_saliency_test_unblur = data_path + "cocosearch/saliencymap/test_unblur"
     dir_stimuli_test = pysaliency.FileStimuli(test_list)
-    dir_saliency_test_img = os.path.join(dir_saliency_test , 'pysaliency_sal_img')
+    dir_saliency_test_img = os.path.join("cocosearch/saliencymap" , 'pysaliency_test_sal_img')
     
     if os.path.exists(dir_saliency_test_img):
         shutil.rmtree(dir_saliency_test_img)

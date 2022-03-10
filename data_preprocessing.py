@@ -119,8 +119,8 @@ def preprocess_fixations(phase,
                         fixs.append(fix)'''
                     # masking the target
                     '''if (x1<=fix[0]<=x1+w_image and y1<=fix[1]<=y1+h_image):
-                continue
-              else:'''
+                        continue
+                    else:'''
                     heatmap += GaussianMask(im_w, im_h, sigma, (fix[0], fix[1]))
                     heatmap_unblurred[int(fix[1]), int(fix[0])] = 1
 
@@ -135,17 +135,11 @@ def preprocess_fixations(phase,
 
         source = dldir + '/images/' + str(task_img.split('_')[0]) + '/' + str(task_img.split('_')[1])
         heatmap_flip = cv2.flip(heatmap, 1)
-
-        # heatmap_flip = cv2.flip(heatmap , 0)
         img = cv2.imread(source)
         img_resized = cv2.resize(img, (im_w, im_h), interpolation=cv2.INTER_AREA)
         # bbox = [top left x position, top left y position, width, height].
         img_resized_flip = cv2.flip(img_resized, 1)
-        # img_resized_flip = cv2.flip(img_resized , 0)
-        # print(task_img.split('_')[0])
-        
-        #targ_ind = str(random.randint(0, 4))
-        
+
         target_0 = cv2.imread(dldir + '/targets/' + task_img.split('_')[
             0] + '_' + '0' + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
 
@@ -181,7 +175,6 @@ def preprocess_fixations(phase,
         unblur = False
 
         if phase == 'train':
-            # img_name = './' + str(task_img.split('_')[0])+ '/' + str(task_img.split('_')[1])
 
             if task_img in flat_test_task_img_pair:
                 f = False
@@ -258,8 +251,7 @@ def preprocess_fixations(phase,
         alpha = 0.5
 
         marge = cv2.addWeighted(img_resized, 1 - alpha, marge, alpha, 0)
-        # img = cv2.imread(img_name)
-        # copyfile(source, destination)
+
         cv2.imwrite(destination, img_resized)
         cv2.imwrite(out_name, heatmap)
         cv2.imwrite(target_path_0, target_0)
@@ -452,7 +444,7 @@ if __name__ == '__main__':
 
     # Downloading COCOSearch Dataset
 
-    download_cocosearch(args.dldir)
+    #download_cocosearch(args.dldir)
 
     dataset_root = args.dldir
 
@@ -471,10 +463,6 @@ if __name__ == '__main__':
                    'coco_search18_fixations_TP_validation_split1.json')) as json_file:
         human_scanpaths_valid = json.load(json_file)
 
-    # with open(join(dataset_root,
-    #               './annotations/instances_val2017.json')) as json_file:
-    #    coco_test_annotations = json.load(json_file)
-
     # exclude incorrect scanpaths
     human_scanpaths_train = list(
         filter(lambda x: x['correct'] == 1, human_scanpaths_train))
@@ -484,8 +472,6 @@ if __name__ == '__main__':
     # process fixation data
     dataset = process_data(human_scanpaths_train, human_scanpaths_valid, bbox_annos,
                            args.sigma, args.dldir, args.datadir)
-    # !rm -r './images'
-    # print(dataset['catIds'])
 
     print(len(dataset['img_train']))
     print(len(dataset['img_valid']))

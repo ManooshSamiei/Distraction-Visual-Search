@@ -7,9 +7,12 @@ training or uses the correct version for inference when testing.
 """
 
 PARAMS = {
-    "n_epochs": 6,
+    "n_epochs": 5,
     "batch_size": 1,
+    "n_training_steps": 10000,
     "learning_rate": 1e-5,
+    "learning_power": 0.5,
+    "momentum": 0.9,
     "device": "gpu"
 }
 
@@ -22,5 +25,5 @@ for download were trained on these image dimensions.
 
 DIMS = {
     "image_size_cocosearch": (512, 320),
-    "image_target_size_cocosearch": (512, 320)
-}
+    "image_target_size_cocosearch": (512, 320)}
+
