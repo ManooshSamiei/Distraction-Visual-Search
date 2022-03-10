@@ -20,10 +20,10 @@ class COCOSEARCH:
                and validation set instances respectively.
     """
 
-    n_train = 2823  # 95*2
-    n_valid = 324  # 17*2
-
     def __init__(self, data_path):
+
+        self.n_train = next(os.walk(data_path + "cocosearch/stimuli/train"))[2]  #2823  # 95*2
+        self.n_valid = next(os.walk(data_path + "cocosearch/stimuli/valid"))[2] #324  # 17*2
 
         self._stimuli_size = config.DIMS["image_size_cocosearch"]
         self._target_size = config.DIMS["image_target_size_cocosearch"]
@@ -42,15 +42,12 @@ class COCOSEARCH:
 
 
     def load_data(self):
-        
-        n_train = 2823  # 95*2
-        n_valid = 324  # 17*2
 
         train_list_x = _get_file_list(self._dir_stimuli_train)
         train_list_y = _get_file_list(self._dir_saliency_train)
         train_list_z = _get_file_list(self._dir_target_train)
 
-        _check_consistency(zip(train_list_x, train_list_y, train_list_z), n_train)
+        _check_consistency(zip(train_list_x, train_list_y, train_list_z), self.n_train)
 
         train_set = _fetch_dataset((train_list_x, train_list_y, train_list_z),
                                     self._stimuli_size, self._target_size, True)
@@ -59,7 +56,7 @@ class COCOSEARCH:
         valid_list_y = _get_file_list(self._dir_saliency_valid)
         valid_list_z = _get_file_list(self._dir_target_valid)
 
-        _check_consistency(zip(valid_list_x, valid_list_y, valid_list_z), n_valid)
+        _check_consistency(zip(valid_list_x, valid_list_y, valid_list_z), self.n_valid)
 
         valid_set = _fetch_dataset((valid_list_x, valid_list_y, valid_list_z),
                                     self._stimuli_size, self._target_size, False)
@@ -77,10 +74,11 @@ class TEST:
         object: A dataset object that holds all test set instances
                 specified under the path variable.
     """
-    n_test = 324  # 18
 
     def __init__(self, dataset, data_path):
         
+        self.n_test = next(os.walk(data_path + "cocosearch/stimuli/test"))[2]  #324  #18
+
         self._stimuli_size = config.DIMS["image_size_cocosearch"]
         self._target_size = config.DIMS["image_target_size_cocosearch"]
 
@@ -93,12 +91,11 @@ class TEST:
 
     def load_data(self):
 
-        n_test = 324  # 18
         test_list_x = _get_file_list(self._dir_stimuli_test)
         test_list_y = _get_file_list(self._dir_saliency_test)
         test_list_z = _get_file_list(self._dir_target_test)
 
-        _check_consistency(zip(test_list_x, test_list_y, test_list_z), n_test)
+        _check_consistency(zip(test_list_x, test_list_y, test_list_z), self.n_test)
 
         test_set = _fetch_dataset((test_list_x, test_list_y, test_list_z), self._stimuli_size, self._target_size,
                                   False, online=True)

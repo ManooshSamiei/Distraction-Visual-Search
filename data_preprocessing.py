@@ -273,20 +273,12 @@ def preprocess_fixations(phase,
             cv2.imwrite(tar_out_flip_3, target_flip_3)
             cv2.imwrite(tar_out_flip_4, target_flip_4)
 
-        if task_img not in flat_test_task_img_pair:
-            stimuli.append(img_resized)
-            stimuli.append(img_resized_flip)
-            heat_maps_list.append(heatmap)
-            heat_maps_list.append(heatmap_flip)
-            fix_labels.append(fixs)
-
         if unblur:
             cv2.imwrite(out_name_unblur, heatmap_unblurred)
             with open(out_name_unblur_npy, "wb") as file:
                     np.save(file, heatmap_unblurred_np)
 
-    return fix_labels, stimuli, heat_maps_list
-
+    return 
 
 def process_data(trajs_train,
                  trajs_valid,
@@ -313,7 +305,7 @@ def process_data(trajs_train,
         train_task_img_pair.append(traj['task'] + '_' + traj['name'])
     train_task_img_pair = np.unique(np.asarray(train_task_img_pair))'''
 
-    train_fix_labels, train_stimuli, train_heatmaps = preprocess_fixations(
+    preprocess_fixations(
         'train',
         train_task_img_pair,
         trajs_train,
@@ -335,7 +327,7 @@ def process_data(trajs_train,
         valid_task_img_pair.append(traj['task'] + '_' + traj['name'])
     valid_task_img_pair = np.unique(np.array(valid_task_img_pair))'''
 
-    valid_fix_labels, valid_stimuli, valid_heatmaps = preprocess_fixations(
+    preprocess_fixations(
         'valid',
         valid_task_img_pair,
         trajs_valid,
@@ -347,15 +339,7 @@ def process_data(trajs_train,
         datadir,
         truncate_num=max_traj_length)
 
-    return {
-        'catIds': catIds,
-        'img_train': np.asarray(train_stimuli),
-        'img_train_saliency': np.asarray(train_heatmaps),
-        'img_valid': np.asarray(valid_stimuli),
-        'img_valid_saliency': np.asarray(valid_heatmaps),
-        'gaze_train': np.asarray(train_fix_labels),
-        'gaze_valid': np.asarray(valid_fix_labels),
-    }
+    return 
 
 
 if __name__ == '__main__':
@@ -474,10 +458,14 @@ if __name__ == '__main__':
         filter(lambda x: x['correct'] == 1, human_scanpaths_valid))
 
     # process fixation data
-    dataset = process_data(human_scanpaths_train, human_scanpaths_valid, bbox_annos,
+    process_data(human_scanpaths_train, human_scanpaths_valid, bbox_annos,
                            args.sigma, args.dldir, args.datadir)
 
-    print(len(dataset['img_train']))
-    print(len(dataset['img_valid']))
-    print(len(dataset['img_train_saliency']))
-    print(len(dataset['img_valid_saliency']))
+    train = next(os.walk(tr_stimuli))[2] 
+    print(len(train))
+
+    valid = next(os.walk(v_stimuli))[2] 
+    print(len(valid))
+
+    test = next(os.walk(te_stimuli))[2] 
+    print(len(test))

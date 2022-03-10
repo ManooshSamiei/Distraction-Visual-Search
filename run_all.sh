@@ -28,13 +28,13 @@ docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(
 
 ##test model
 
-PHASE="test"
+PHASE_1="test"
 
 docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(id -g) -v $(pwd):/workspace \
     -v /mnt:/mnt -v /media:/media -v /srv:/srv -v /nas:/nas -p 7967:7967 eos/tf1.15-conda:latest_ss \
     python /nas/EOS/users/manoosh/sal/Predicting-Salience-During-Visual-Search/main.py \
         --path=$DIR \
-        --phase=$PHASE \
+        --phase=$PHASE_1 \
         --threshold=$THRESHOLD
 
 ##compute saliency metrics
