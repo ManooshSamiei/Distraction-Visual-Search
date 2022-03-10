@@ -29,14 +29,14 @@ def download_cocosearch(data_path):
 
     os.makedirs(data_path, exist_ok=True)
 
-    urls = ['http://vision.cs.stonybrook.edu/~cvlab_download/COCOSearch18-images-TP.zip']# ,
-    #'https://saliency.tuebingen.ai/data/coco_search18_TP.zip']
+    urls = ['http://vision.cs.stonybrook.edu/~cvlab_download/COCOSearch18-images-TP.zip',
+            'https://saliency.tuebingen.ai/data/coco_search18_TP.zip']
 
     for url in urls:
         filename = wget.download(url, data_path)
         unzip(filename, data_path)
 
-    '''url = "https://drive.google.com/uc?export=download&id=1vEzgF54LPK2adlI7DdlXWGkYV76L-jjK"
+    url = "https://drive.google.com/uc?export=download&id=1vEzgF54LPK2adlI7DdlXWGkYV76L-jjK"
 
     gdown.download(url, data_path + '/targets.zip', quiet=False)
     unzip(data_path + '/targets.zip', data_path)
@@ -50,7 +50,7 @@ def download_cocosearch(data_path):
     weights_path = data_path + '/weights'
     os.makedirs(weights_path, exist_ok=True)
     gdown.download(url, weights_path + '/vgg16_hybrid.zip', quiet=False)
-    unzip(weights_path + '/vgg16_hybrid.zip', weights_path)'''
+    unzip(weights_path + '/vgg16_hybrid.zip', weights_path)
 
     print("done!", flush=True)
     return
