@@ -56,7 +56,11 @@ def preprocess_fixations(phase,
     min_fix_y = 100000
     max_fix_y = -100000
     flat_test_task_img_pair = []
-    not_augment = ['tv', 'sink', 'fork', 'cup', 'chair']
+    not_augment = ['bottle', 'bowl' , 'cup', 'car', 'chair', 
+                   'clock', 'fork', 'keyboard', 'knife', 
+                   'laptop', 'microwave', 'mouse', 'oven',
+                   'potted plant', 'sink', 'stop sign', 
+                   'toilet', 'tv']
 
     if phase == 'train':
         test_task_img_pair = []
