@@ -95,6 +95,9 @@ def train_model(dataset, paths, device):
     n_train_data = getattr(data, dataset.upper()).n_train
     n_valid_data = getattr(data, dataset.upper()).n_valid
 
+    print(n_train_data)
+    print(n_valid_data)
+
     n_train_batches = int(np.ceil(n_train_data / config.PARAMS["batch_size"]))
     n_valid_batches = int(np.ceil(n_valid_data / config.PARAMS["batch_size"]))
 

@@ -19,12 +19,14 @@ class COCOSEARCH:
         tuple: A tuple that consists of dataset objects holding the training
                and validation set instances respectively.
     """
+    n_train = 0
+    n_valid = 0
 
     def __init__(self, data_path):
 
-        self.n_train = next(os.walk(data_path + "cocosearch/stimuli/train"))[2]  #2823  # 95*2
-        self.n_valid = next(os.walk(data_path + "cocosearch/stimuli/valid"))[2] #324  # 17*2
-
+        type(self).n_train = len(next(os.walk(data_path + "cocosearch/stimuli/train"))[2])  #2823  # 95*2
+        type(self).n_valid = len(next(os.walk(data_path + "cocosearch/stimuli/valid"))[2]) #324  # 17*2
+        
         self._stimuli_size = config.DIMS["image_size_cocosearch"]
         self._target_size = config.DIMS["image_target_size_cocosearch"]
 
@@ -74,10 +76,10 @@ class TEST:
         object: A dataset object that holds all test set instances
                 specified under the path variable.
     """
-
+    n_test = 0
     def __init__(self, dataset, data_path):
         
-        self.n_test = next(os.walk(data_path + "cocosearch/stimuli/test"))[2]  #324  #18
+        type(self).n_test = len(next(os.walk(data_path + "cocosearch/stimuli/test"))[2])  #324  #18
 
         self._stimuli_size = config.DIMS["image_size_cocosearch"]
         self._target_size = config.DIMS["image_target_size_cocosearch"]
@@ -356,5 +358,3 @@ def _check_consistency(zipped_file_lists, n_total_files):
         file_names = [entry.replace("_fixPts", "") for entry in file_names]
 
         assert len(set(file_names)) == 1, "File name mismatch"
-
-    
