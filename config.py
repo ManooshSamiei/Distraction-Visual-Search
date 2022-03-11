@@ -21,9 +21,9 @@ To reproduce the results from the paper, these values should
 not be changed. They must be divisible by 8 due to the model's
 downsampling operations. Furthermore, all pretrained models
 for download were trained on these image dimensions.
-"""
+""" 
 
 DIMS = {
-    "image_size_cocosearch": (512, 320),
-    "image_target_size_cocosearch": (512, 320)}
-
+    "image_size_cocosearch": (64, 64),
+    "image_target_size_cocosearch": (320, 512)
+}

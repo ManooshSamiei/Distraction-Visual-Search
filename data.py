@@ -275,7 +275,18 @@ def _resize_image(image, target_size, overfull=False):
 
     current_size = tf.shape(image)[:2]
 
-    target_size = tf.cast(tf.round(current_size), tf.int32)
+    #target_size = tf.cast(tf.round(current_size), tf.int32)
+    height_ratio = target_size[0] / current_size[0]
+    width_ratio = target_size[1] / current_size[1]
+
+    if overfull:
+        target_ratio = tf.maximum(height_ratio, width_ratio)
+    else:
+        target_ratio = tf.minimum(height_ratio, width_ratio)
+
+    target_size = tf.cast(current_size, tf.float64) * target_ratio
+    target_size = tf.cast(tf.round(target_size), tf.int32)
+
 
     shrinking = tf.cond(tf.logical_or(current_size[0] > target_size[0],
                                       current_size[1] > target_size[1]),
