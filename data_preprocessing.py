@@ -56,12 +56,12 @@ def preprocess_fixations(phase,
     min_fix_y = 100000
     max_fix_y = -100000
     flat_test_task_img_pair = []
-    not_augment = ['bottle', 'bowl' , 'cup', 'car', 'chair', 
+    '''not_augment = ['bottle', 'bowl' , 'cup', 'car', 'chair', 
                    'clock', 'fork', 'keyboard', 'knife', 
                    'laptop', 'microwave', 'mouse', 'oven',
                    'potted plant', 'sink', 'stop sign', 
-                   'toilet', 'tv']
-
+                   'toilet', 'tv']'''
+    not_augment = []
     if phase == 'train':
         test_task_img_pair = []
         for key, group in groupby(train_task_img_pair, lambda x: x.split('_')[0]):
@@ -296,14 +296,14 @@ def process_data(trajs_train,
     catIds = dict(zip(cat_names, list(range(len(cat_names)))))
 
     # training fixation data
-    train_task_img_pair = np.unique(
-        [traj['task'] + '_' + traj['name'] for traj in trajs_train])
+    '''train_task_img_pair = np.unique(
+        [traj['task'] + '_' + traj['name'] for traj in trajs_train])'''
 
-    '''train_task_img_pair = []
+    train_task_img_pair = []
     for traj in trajs_train:
       if traj['task'] =='bottle':
         train_task_img_pair.append(traj['task'] + '_' + traj['name'])
-    train_task_img_pair = np.unique(np.asarray(train_task_img_pair))'''
+    train_task_img_pair = np.unique(np.asarray(train_task_img_pair))
 
     preprocess_fixations(
         'train',
@@ -318,14 +318,14 @@ def process_data(trajs_train,
         truncate_num=max_traj_length)
 
     # validation fixation data
-    valid_task_img_pair = np.unique(
-        [traj['task'] + '_' + traj['name'] for traj in trajs_valid])
+    '''valid_task_img_pair = np.unique(
+        [traj['task'] + '_' + traj['name'] for traj in trajs_valid])'''
 
-    ''' valid_task_img_pair = []
+    valid_task_img_pair = []
     for traj in trajs_valid:
       if traj['task'] =='bottle':
         valid_task_img_pair.append(traj['task'] + '_' + traj['name'])
-    valid_task_img_pair = np.unique(np.array(valid_task_img_pair))'''
+    valid_task_img_pair = np.unique(np.array(valid_task_img_pair))
 
     preprocess_fixations(
         'valid',
