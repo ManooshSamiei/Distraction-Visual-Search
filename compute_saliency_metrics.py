@@ -10,10 +10,11 @@ import tensorflow as tf
 import random
 import glob
 import shutil
+from pandas import DataFrame
 
-tf.compat.v1.enable_eager_execution()
+#tf.compat.v1.enable_eager_execution()
 
-def compute_saliency_metrics(data_path, use_pysaliency):
+def compute_saliency_metrics(data_path, use_pysaliency, csv_path):
 
     test_list = []
 
@@ -205,6 +206,12 @@ def compute_saliency_metrics(data_path, use_pysaliency):
     print('SIM:',sim_mean_test_error )
     print('INFO GAIN:', infog_mean_test_error )
 
+    df = DataFrame({'AUC': [auc_mean_test_error], 'AUC Borji':[auc_b_mean_test_error] , 'SAUC':[sauc_mean_test_error] , 'NSS':[nss_mean_test_error] , \
+                        'image_KLD':[kl_mean_test_error], 'CC':[cc_mean_test_error], 'SIM':[sim_mean_test_error], 'INFO GAIN':[infog_mean_test_error]})
+
+    output_path= csv_path + 'sal_metrics.xlsx'
+    df.to_csv(output_path, mode='a', header=not os.path.exists(output_path), index=False)
+
 def str2bool(v):
     if isinstance(v, bool):
         return v
@@ -227,12 +234,16 @@ def main():
 
     parser.add_argument("--path",  type=str, 
                         help="specify the root path to data")
+
+    parser.add_argument("--csv-path",  type=str, 
+                        help="specify the path to save the csv file with computed saliency metrics.")
+
     parser.add_argument('--use-pysaliency', type=str2bool, required=True,
                         default=False,
                         help='Determines whether to use pysaliency for the saliency metrics computation.')
     args = parser.parse_args()
 
-    compute_saliency_metrics(args.path, args.use_pysaliency)
+    compute_saliency_metrics(args.path, args.use_pysaliency, args.csv_path)
         
 
 if __name__ == "__main__":

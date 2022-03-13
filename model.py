@@ -346,6 +346,15 @@ class MSINET:
 
         return self._output
 
+    def one_stream(self, stimuli_features):
+        """Contains the output of the one stream network, which is the
+            predicted fixation density map."""
+
+        self._decoder(self._output)
+        self._normalize(self._output)
+
+        return self._output
+
     def output_stream(self, stimuli_features, target_features):
         """Contains the output of the network, which is the
             predicted fixation density map."""

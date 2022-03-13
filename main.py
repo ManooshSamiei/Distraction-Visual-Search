@@ -89,6 +89,8 @@ def train_model(dataset, paths, device):
 
     predicted_maps = msinet.output_stream(feature_map_stimuli, feature_map_target)
 
+    #predicted_maps = msinet.one_stream(feature_map_stimuli)
+
     optimizer, loss = msinet.train(ground_truths, predicted_maps,
                                    config.PARAMS["learning_rate"])
 
@@ -125,6 +127,12 @@ def train_model(dataset, paths, device):
             sess.run(train_init_op)
 
             for batch in range(n_train_batches):
+
+                #f_map = sess.run(feature_map_stimuli)
+                #print(f_map.shape)
+
+                #t_map = sess.run(feature_map_target)
+                #print(t_map.shape)
 
                 _ , error = sess.run([optimizer, loss])
 
@@ -171,7 +179,7 @@ def test_model(dataset, paths, device):
 
     input_images, ground_truths, input_targets, original, file_path = next_element
 
-    original_shape = (512, 320)
+    original_shape = (320, 512)
 
     graph_def = tf.GraphDef()
 
@@ -182,7 +190,7 @@ def test_model(dataset, paths, device):
             graph_def.ParseFromString(file.read())
 
     predicted_maps = tf.import_graph_def(graph_def,
-                                         input_map={"input": input_images, "input_2": input_targets},
+                                         input_map={"input": input_images , "input_2": input_targets},
                                          return_elements=["output:0"])
 
     predicted_maps = tf.squeeze(predicted_maps, axis=0)
