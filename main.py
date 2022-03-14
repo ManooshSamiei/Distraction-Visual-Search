@@ -78,8 +78,8 @@ def train_model(dataset, paths, device):
                                              name="input")
 
     input_target_img = tf.placeholder_with_default(input_targets,
-                                                   (None, None, None, 3),
-                                                   name="input_2")
+                                                    (None, None, None, 3),
+                                                    name="input_2")
 
     msinet = model.MSINET()
 
@@ -89,7 +89,7 @@ def train_model(dataset, paths, device):
 
     predicted_maps = msinet.output_stream(feature_map_stimuli, feature_map_target)
 
-    #predicted_maps = msinet.one_stream(feature_map_stimuli)
+    # predicted_maps = msinet.one_stream(feature_map_stimuli)
 
     optimizer, loss = msinet.train(ground_truths, predicted_maps,
                                    config.PARAMS["learning_rate"])
@@ -190,7 +190,7 @@ def test_model(dataset, paths, device):
             graph_def.ParseFromString(file.read())
 
     predicted_maps = tf.import_graph_def(graph_def,
-                                         input_map={"input": input_images , "input_2": input_targets},
+                                         input_map={"input": input_images, "input_2": input_targets},
                                          return_elements=["output:0"])
 
     predicted_maps = tf.squeeze(predicted_maps, axis=0)

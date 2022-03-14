@@ -30,25 +30,27 @@ def compute_saliency_metrics(data_path, use_pysaliency, csv_path):
     dir_stimuli_test = pysaliency.FileStimuli(test_list)
     dir_saliency_test_img = os.path.join("cocosearch/saliencymap" , 'pysaliency_test_sal_img')
     
-    if os.path.exists(dir_saliency_test_img):
-        shutil.rmtree(dir_saliency_test_img)
-        os.makedirs(dir_saliency_test_img)
-    else:
-        os.makedirs(dir_saliency_test_img)
-     
-    dir_results_test_img = os.path.join(data_path + 'results/images' , 'pysaliency_result_img')
+    if use_pysaliency:
 
-    if os.path.exists(dir_results_test_img):
-        shutil.rmtree(dir_results_test_img)
-        os.makedirs(dir_results_test_img)
-    else:
-        os.makedirs(dir_results_test_img)
+        if os.path.exists(dir_saliency_test_img):
+            shutil.rmtree(dir_saliency_test_img)
+            os.makedirs(dir_saliency_test_img)
+        else:
+            os.makedirs(dir_saliency_test_img)
+        
+        dir_results_test_img = os.path.join(data_path + 'results/images' , 'pysaliency_result_img')
 
-    for item in glob.glob(os.path.join(dir_saliency_test , '*.jpg')):
-        os.symlink(item , os.path.join(dir_saliency_test_img , os.path.basename(item)))
+        if os.path.exists(dir_results_test_img):
+            shutil.rmtree(dir_results_test_img)
+            os.makedirs(dir_results_test_img)
+        else:
+            os.makedirs(dir_results_test_img)
 
-    for item in glob.glob(os.path.join(data_path + 'results/images' , '*.jpg')):
-        os.symlink(item, os.path.join(dir_results_test_img , os.path.basename(item)))
+        for item in glob.glob(os.path.join(dir_saliency_test , '*.jpg')):
+            os.symlink(item , os.path.join(dir_saliency_test_img , os.path.basename(item)))
+
+        for item in glob.glob(os.path.join(data_path + 'results/images' , '*.jpg')):
+            os.symlink(item, os.path.join(dir_results_test_img , os.path.basename(item)))
 
 
     with open(data_path + 'coco_search18_fixations_TP_train_split1.json') as json_file:
@@ -83,6 +85,7 @@ def compute_saliency_metrics(data_path, use_pysaliency, csv_path):
 
     m_kld_error, m_cc_error, m_sim_error, m_nss_error, m_auc_error, m_infog_error, m_sauc_error, m_auc_b_error = 0,0,0,0,0,0,0,0
     count = len(os.listdir(test_stimuli_path))
+
     for subdir, dirs, files in os.walk(test_stimuli_path):
 
 
@@ -96,17 +99,16 @@ def compute_saliency_metrics(data_path, use_pysaliency, csv_path):
 
             base_line_salmap /= np.max(base_line_salmap)
             M = 1
-            random_ind = random.sample(range(1, count), M)
+            random_ind = random.sample(range(0, count), M)
             base_line_fixmap = np.zeros((320 , 512))
             for i in random_ind:
-
+                #print(i)
+                while(files[i]==stimulus):
+                    i = random.randint(0, count-1)
+                    #print(i)
                 if files[i]!=stimulus:
                     base_line_fixmap = base_line_fixmap + (np.load(os.path.join(dir_saliency_test_unblur , os.path.splitext(files[i])[0]+'.npy'), allow_pickle=True))/255
                     
-                else:
-                    rand_ind = random.randint(0, count)
-                    base_line_fixmap = base_line_fixmap + (np.load(os.path.join(dir_saliency_test_unblur , os.path.splitext(files[rand_ind])[0]+'.npy'), allow_pickle=True))/255
-
             base_line_fixmap[np.where(base_line_fixmap>1.0)] = 1.0
 
             ##gnd_map = tf.image.decode_jpeg(tf.read_file(os.path.join(dir_saliency_test , stimulus)), channels=1).numpy()
