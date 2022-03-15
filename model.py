@@ -438,17 +438,8 @@ class MSINET:
         if os.path.isfile(paths["latest"] + model_name + ext1) and \
                 os.path.isfile(paths["latest"] + model_name + ext2):
             saver.restore(sess, paths["latest"] + model_name + ".ckpt")
-        elif dataset in ("mit1003", "cat2000", "dutomron",
-                         "pascals", "osie", "fiwi"):
-            if os.path.isfile(paths["best"] + salicon_name + ext1) and \
-                    os.path.isfile(paths["best"] + salicon_name + ext2):
-                saver.restore(sess, paths["best"] + salicon_name + ".ckpt")
-            else:
-                raise FileNotFoundError("Train model on SALICON first")
         else:
-
             self._pretraining()
-
             loader = tf.train.Saver(self._mapping)
             loader.restore(sess, paths["weights"] + vgg16_name + ".ckpt")
 

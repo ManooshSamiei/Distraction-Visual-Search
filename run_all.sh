@@ -6,6 +6,7 @@ DOWNLOAD_DIR="/nas/EOS/users/manoosh/sal"
 SIGMA=11
 DATA_DIR="/nas/EOS/users/manoosh/sal/cocosearch"
 AVAILABLE_GPU="0"
+
 ##preprocess data
 docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(id -g) -v $(pwd):/workspace \
     -v /mnt:/mnt -v /media:/media -v /srv:/srv -v /nas:/nas -p 7967:7967 eos/tf1.15-conda:latest_ss \
@@ -27,7 +28,7 @@ docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(
         --phase=$PHASE \
         --threshold=$THRESHOLD
 
-##test model
+# ##test model
 
 PHASE_1="test"
 
@@ -38,7 +39,7 @@ docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(
         --phase=$PHASE_1 \
         --threshold=$THRESHOLD
 
-##compute saliency metrics
+# ##compute saliency metrics
 
 PYSAL=False
 CSV_DIR=${DOWNLOAD_DIR}/"results/"

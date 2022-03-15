@@ -201,8 +201,6 @@ def test_model(dataset, paths, device):
 
     print(">> Start testing with %s %s model..." % (dataset.upper(), device))
 
-    m_kld_error, m_cc_error, m_sim_error, m_nss_error, m_auc_error = 0,0,0,0,0
-
     with tf.Session() as sess:
         sess.run(init_op)
 
