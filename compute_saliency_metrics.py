@@ -17,7 +17,11 @@ from pandas import DataFrame
 def compute_saliency_metrics(data_path, use_pysaliency, csv_path):
 
     test_list = []
-
+    category = ['bottle', 'bowl' , 'cup', 'car', 'chair', 
+                   'clock', 'fork', 'keyboard', 'knife', 
+                   'laptop', 'microwave', 'mouse', 'oven',
+                   'potted plant', 'sink', 'stop sign', 
+                   'toilet', 'tv']
     test_stimuli_path = data_path + "cocosearch/stimuli/test"
 
     for subdir, dirs, files in os.walk(test_stimuli_path):
@@ -83,19 +87,21 @@ def compute_saliency_metrics(data_path, use_pysaliency, csv_path):
             if traj['Y'][i] > max_fix_y:
                 max_fix_y = traj['Y'][i]
 
+    #for cat in category:
+    #print(str(cat))
     m_kld_error, m_cc_error, m_sim_error, m_nss_error, m_auc_error, m_infog_error, m_sauc_error, m_auc_b_error = 0,0,0,0,0,0,0,0
-    count = len(os.listdir(test_stimuli_path))
-
+    #count = len(glob.glob(os.path.join(test_stimuli_path , str(cat)+ '*.jpg')))#
+    count =  len(os.listdir(test_stimuli_path))
     for subdir, dirs, files in os.walk(test_stimuli_path):
 
-
+        
         for n, stimulus in enumerate(files):
 
-
+            #if stimulus.startswith(str(cat)):   
             base_line_salmap = np.zeros((320 , 512))
             for j in files:
-                 if j!= stimulus:
-                     base_line_salmap = base_line_salmap + np.load(os.path.join(dir_saliency_test , os.path.splitext(j)[0]+'.npy'), allow_pickle=True)
+                if j!= stimulus: #and j.startswith(str(cat)):
+                    base_line_salmap = base_line_salmap + np.load(os.path.join(dir_saliency_test , os.path.splitext(j)[0]+'.npy'), allow_pickle=True)
 
             base_line_salmap /= np.max(base_line_salmap)
             M = 1
@@ -106,7 +112,7 @@ def compute_saliency_metrics(data_path, use_pysaliency, csv_path):
                 while(files[i]==stimulus):
                     i = random.randint(0, count-1)
                     #print(i)
-                if files[i]!=stimulus:
+                if files[i]!=stimulus: # and files[i].startswith(str(cat)):
                     base_line_fixmap = base_line_fixmap + (np.load(os.path.join(dir_saliency_test_unblur , os.path.splitext(files[i])[0]+'.npy'), allow_pickle=True))/255
                     
             base_line_fixmap[np.where(base_line_fixmap>1.0)] = 1.0
@@ -212,6 +218,7 @@ def compute_saliency_metrics(data_path, use_pysaliency, csv_path):
                         'image_KLD':[kl_mean_test_error], 'CC':[cc_mean_test_error], 'SIM':[sim_mean_test_error], 'INFO GAIN':[infog_mean_test_error]})
 
     output_path= csv_path + 'sal_metrics.xlsx'
+    #output_path= csv_path + str(cat) + '_sal_metrics.xlsx'
     df.to_csv(output_path, mode='a', header=not os.path.exists(output_path), index=False)
 
 def str2bool(v):
