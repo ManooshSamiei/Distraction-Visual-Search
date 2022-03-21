@@ -65,13 +65,13 @@ All dependencies can be installed in a single docker image or an environment.
 
 ```sigma``` specifies the Gaussian blurring standard deviation. The default value of ```11``` is used. As in MIT saliency benchmark we set the cut-off frequency ```f_c``` as ```8```. Using the below formula we derive a sigma of ```10.31``` and round it up to ```11```. 
 ![equation] (https://latex.codecogs.com/svg.image?sigma&space;=&space;\frac{f_c}{\sqrt{2*\log{2}}})
-
+```
      f      
       c     
 ------------
   __________
 |/2 * log{2}
-
+```
 
 
 <img src='./images/formula.png' width = '200'/>
