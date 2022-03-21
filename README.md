@@ -12,9 +12,7 @@ more top-down control of attention. In this paper, we adapt a light-weight free-
 Original repository forked from the implementation of MSI-Net saliency network [Contextual encoder-decoder network for visual saliency prediction] (https://www.sciencedirect.com/science/article/pii/S0893608020301660) (2020), [original implementation](https://github.com/alexanderkroner/saliency)
 
 
-## Reference
-
-If you use the code in this repository, please cite the paper:
+## Citation
 
 ```
 @article{Samiei2021visualsearch,
@@ -46,7 +44,27 @@ If you use the code in this repository, please cite the paper:
 | wget       | 3.2     |
 | pysaliency | -       |
 
+All dependencies can be installed in a single docker image or an environment. 
+
 ## Results
 
 <img src="./images/results_1" width="1000"/>
-<img src="./images/results_2" width="1000"/>
+
+## Dataset Download + Preprocessing
+
+```dataset_download.py``` --> downloads COCO-Search18 dataset, target images, and VGG16 pretrained weights on ImageNet.
+
+```data_preprocessing.py``` --> Creates task-image pairs. Processes fixation data and creates Gaussian-blurred fixation maps. It resizes all images and fixation maps, augments data with horizontal flips, splits augmented data into train-test-validation sets. Unblurred fixation maps are also generated for test split to be used in saliency metrics computation. 
+
+ ```data_preprocessing.py``` file automatically calls ```dataset_download.py```. Thus, to download and do the preprocessing steps we only need to run ```data_preprocessing.py``` as below:
+
+```
+    python ./data_preprocessing.py \
+    --dldir=$DOWNLOAD_DIR \
+    --sigma=$SIGMA \
+    --datadir=$DATA_DIR \
+```
+
+```sigma``` specifies the Gaussian blurring standard deviation. The default value of ```11``` is used. The choice of sigma <img src="https://render.githubusercontent.com/render/math?math= s = cutoff_frequency/np.sqrt(2*np.log(2))">  $s = cutoff_frequency/np.sqrt(2*np.log(2))$
+## Running All Steps at Once
+
