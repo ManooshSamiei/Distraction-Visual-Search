@@ -46,9 +46,7 @@ Original repository forked from the implementation of MSI-Net saliency network [
 
 All dependencies can be installed in a single docker image or an environment. 
 
-## Results
 
-<img src="./images/results_1" width="1000"/>
 
 ## Dataset Download + Preprocessing
 
@@ -56,7 +54,7 @@ All dependencies can be installed in a single docker image or an environment.
 
 ```data_preprocessing.py``` --> Creates task-image pairs. Processes fixation data and creates Gaussian-blurred fixation maps. It resizes all images and fixation maps, augments data with horizontal flips, splits augmented data into train-test-validation sets. Unblurred fixation maps are also generated for test split to be used in saliency metrics computation. 
 
- ```data_preprocessing.py``` file automatically calls ```dataset_download.py```. Thus, to download and do the preprocessing steps we only need to run ```data_preprocessing.py``` as below:
+ ```data_preprocessing.py``` file automatically calls ```dataset_download.py```. Therefore we only need to run ```data_preprocessing.py``` as below:
 
 ```
     python ./data_preprocessing.py \
@@ -65,6 +63,16 @@ All dependencies can be installed in a single docker image or an environment.
     --datadir=$DATA_DIR \
 ```
 
-```sigma``` specifies the Gaussian blurring standard deviation. The default value of ```11``` is used. The choice of sigma <img src="https://render.githubusercontent.com/render/math?math= s = cutoff_frequency/np.sqrt(2*np.log(2))">  $s = cutoff_frequency/np.sqrt(2*np.log(2))$
+```sigma``` specifies the Gaussian blurring standard deviation. The default value of ```11``` is used. As in MIT saliency benchmark we set the cut-off frequency ```f_c``` as ```8```. Using the below formula we derive a sigma of ```10.31``` and round it up to ```11```. 
+
+<img src='./images/formula.png' width = '100'/>
 ## Running All Steps at Once
 
+
+
+
+
+
+## Results
+
+<img src="./images/results_1" width="1000"/>
