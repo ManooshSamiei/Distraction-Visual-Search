@@ -48,5 +48,5 @@ If you use the code in this repository, please cite the paper:
 
 ## Results
 
-<img src="./images/results_1" width="800"/>
-<img src="./images/results_2" width="800"/>
+<img src="./images/results_1" width="1000"/>
+<img src="./images/results_2" width="1000"/>
