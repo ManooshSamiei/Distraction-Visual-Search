@@ -9,7 +9,7 @@ This repository contains the tensorflow implementation of paper **"Where people 
 a simple task that requires observers to look for a target object in a scene. Compared to free-viewing saliency, visual search demands
 more top-down control of attention. In this paper, we adapt a light-weight free-viewing saliency model to model humans’ visual attention behavior during visual search. Our approach predicts fixation density maps, the probability of eye fixation over pixels of the search image, using a two-stream encoder-decoder network. This method helps us to predict which locations are more distracting when searching for a particular target. We use the cocosearch18 dataset to train and evaluate our model. Our network achieves noticeable results on the state-of-the-art saliency metrics (AUC-Judd=0.95, AUC-Borji=0.85, sAUC=0.84, NSS=4.64, KLD=0.93, CC=0.72, SIM=0.54, and IG=2.59).*
 
-Original repository forked from the implementation of MSI-Net saliency network [Contextual encoder-decoder network for visual saliency prediction] (https://www.sciencedirect.com/science/article/pii/S0893608020301660) (2020), [original implementation](https://github.com/alexanderkroner/saliency)
+Original repository forked from the implementation of MSI-Net saliency network [Contextual encoder-decoder network for visual saliency prediction](https://www.sciencedirect.com/science/article/pii/S0893608020301660) (2020), [original implementation](https://github.com/alexanderkroner/saliency)
 
 
 ## Citation
@@ -64,7 +64,7 @@ All dependencies can be installed in a single docker image or an environment.
 ```
 
 ```sigma``` specifies the Gaussian blurring standard deviation. The default value of ```11``` is used. As in MIT saliency benchmark we set the cut-off frequency ```f_c``` as ```8```. Using the below formula we derive a sigma of ```10.31``` and round it up to ```11```. 
-![equation] (https://latex.codecogs.com/svg.image?sigma&space;=&space;\frac{f_c}{\sqrt{2*\log{2}}})
+[equation] (https://latex.codecogs.com/svg.image?sigma&space;=&space;\frac{f_c}{\sqrt{2*\log{2}}})
 <img src='./images/formula.png' width = '200'/>
 ## Running All Steps at Once
 
