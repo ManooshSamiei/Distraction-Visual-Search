@@ -3,7 +3,6 @@ import time
 from datetime import timedelta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
-import numpy as np
 import loss
 import tensorflow as tf
 

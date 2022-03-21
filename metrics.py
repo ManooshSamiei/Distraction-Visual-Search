@@ -4,10 +4,7 @@ https://github.com/tarunsharma1/saliency_metrics repository with
 slight modfications. """
 
 import numpy as np
-import matplotlib.pyplot as plt
 import random
-import sys
-import cv2
 import math
 
 def normalize_map(s_map):
