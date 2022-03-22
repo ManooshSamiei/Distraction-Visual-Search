@@ -292,15 +292,14 @@ def main():
 
     dataset = 'cocosearch'
 
-    default_data_path = "./"
-
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--phase", metavar="PHASE", choices=phases_list,  type=str,
-                        help="sets the network phase (allowed: train or test)")
+                        help="sets the network phase (allowed: train or test)",
+                        default = "train")
 
-    parser.add_argument("--path", default=default_data_path,  type=str, 
+    parser.add_argument("--path", default= "../",  type=str, 
                         help="specify the path where training data will be \
                               downloaded to or test data is stored")
 

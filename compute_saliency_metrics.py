@@ -263,10 +263,10 @@ def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("--path",  type=str, 
-                        help="specify the root path to data")
+    parser.add_argument("--path",  type=str, default='../' ,
+                        help="specify the root path to data" )
 
-    parser.add_argument("--csv-path",  type=str, 
+    parser.add_argument("--csv-path",  type=str, default='../results/',
                         help="specify the path to save the csv file with computed saliency metrics.")
 
     parser.add_argument('--use-pysaliency', type=str2bool, required=True,

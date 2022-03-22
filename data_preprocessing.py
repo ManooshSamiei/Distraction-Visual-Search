@@ -150,27 +150,27 @@ def preprocess_fixations(phase,
         heatmap_unblurred_np = heatmap_unblurred * 255
         heatmap_unblurred = heatmap_unblurred_np.astype("uint8")
 
-        source = dldir + '/images/' + str(task_img.split('_')[0]) + '/' + str(task_img.split('_')[1])
+        source = os.path.join(dldir , 'images' , str(task_img.split('_')[0]) , str(task_img.split('_')[1]))
         heatmap_flip = cv2.flip(heatmap, 1)
         img = cv2.imread(source)
         img_resized = cv2.resize(img, (im_w, im_h), interpolation=cv2.INTER_AREA)
         # bbox = [top left x position, top left y position, width, height].
         img_resized_flip = cv2.flip(img_resized, 1)
 
-        target_0 = cv2.imread(dldir + '/targets/' + task_img.split('_')[
-            0] + '_' + '0' + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
+        target_0 = cv2.imread(os.path.join(dldir , 'targets' , (task_img.split('_')[
+            0] + '_0.png')))  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
 
-        target_1 = cv2.imread(dldir + '/targets/' + task_img.split('_')[
-            0] + '_' + '1' + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
+        target_1 = cv2.imread(os.path.join(dldir , 'targets' , (task_img.split('_')[
+            0] + '_1.png'))) 
 
-        target_2 = cv2.imread(dldir + '/targets/' + task_img.split('_')[
-            0] + '_' + '2' + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
+        target_2 = cv2.imread(os.path.join(dldir , 'targets' , (task_img.split('_')[
+            0] + '_2.png'))) 
 
-        target_3 = cv2.imread(dldir + '/targets/' + task_img.split('_')[
-            0] + '_' + '3' + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
+        target_3 = cv2.imread(os.path.join(dldir , 'targets' , (task_img.split('_')[
+            0] + '_3.png'))) 
 
-        target_4 = cv2.imread(dldir + '/targets/' + task_img.split('_')[
-            0] + '_' + '4' + '.png')  # img_resized[y1:y1+h_image , x1:x1+w_image, :]
+        target_4 = cv2.imread(os.path.join(dldir , 'targets' ,(task_img.split('_')[
+            0] + '_4.png'))) 
 
         target_0 = cv2.resize(target_0, (64, 64), interpolation=cv2.INTER_AREA)
         target_flip_0 = cv2.flip(target_0, 1)
@@ -198,63 +198,63 @@ def preprocess_fixations(phase,
  
                 unblur = True
 
-                out_name = datadir + '/saliencymap/test/' + str(task_img)
-                out_name_np = datadir + '/saliencymap/test/' + os.path.splitext(str(task_img))[0]+'.npy'
+                out_name = os.path.join(datadir , 'saliencymap/test' , str(task_img))
+                out_name_np = os.path.join(datadir , 'saliencymap/test' , (os.path.splitext(str(task_img))[0]+'.npy'))
                 
                 with open(out_name_np, "wb") as file:
                     np.save(file, heatmap_np )
 
-                destination = datadir + '/stimuli/test/' + str(task_img)
-                target_path_0 = datadir + '/target_0/test/' + str(task_img)
-                target_path_1 = datadir + '/target_1/test/' + str(task_img)
-                target_path_2 = datadir + '/target_2/test/' + str(task_img)
-                target_path_3 = datadir + '/target_3/test/' + str(task_img)
-                target_path_4 = datadir + '/target_4/test/' + str(task_img)
+                destination = os.path.join(datadir , 'stimuli/test' , str(task_img))
+                target_path_0 = os.path.join(datadir , 'target_0/test' , str(task_img))
+                target_path_1 = os.path.join(datadir , 'target_1/test' , str(task_img))
+                target_path_2 = os.path.join(datadir , 'target_2/test' , str(task_img))
+                target_path_3 = os.path.join(datadir , 'target_3/test' , str(task_img))
+                target_path_4 = os.path.join(datadir , 'target_4/test' , str(task_img))
 
-                img_target_rect_path = datadir + '/stimuli/test_targ_bbox/' + str(task_img)
+                img_target_rect_path = os.path.join(datadir , 'stimuli/test_targ_bbox' , str(task_img))
                 cv2.imwrite(img_target_rect_path, img_target_frame)
                 
-                out_name_unblur = datadir + '/saliencymap/test_unblur/' + str(task_img)
-                out_name_unblur_npy = datadir + '/saliencymap/test_unblur/' + os.path.splitext(str(task_img))[0]+'.npy'
+                out_name_unblur = os.path.join(datadir , 'saliencymap/test_unblur' , str(task_img))
+                out_name_unblur_npy = os.path.join(datadir , 'saliencymap/test_unblur' , (os.path.splitext(str(task_img))[0]+'.npy'))
 
             else:
 
                 flip_f = True
 
-                out_name = datadir + '/saliencymap/train/' + str(task_img)
-                destination = datadir + '/stimuli/train/' + str(task_img)
+                out_name = os.path.join(datadir , 'saliencymap/train' , str(task_img))
+                destination = os.path.join(datadir , 'stimuli/train' , str(task_img))
 
-                target_path_0 = datadir + '/target_0/train/' + str(task_img)
-                target_path_1 = datadir + '/target_1/train/' + str(task_img)
-                target_path_2 = datadir + '/target_2/train/' + str(task_img)
-                target_path_3 = datadir + '/target_3/train/' + str(task_img)
-                target_path_4 = datadir + '/target_4/train/' + str(task_img)
+                target_path_0 = os.path.join(datadir , 'target_0/train' , str(task_img))
+                target_path_1 = os.path.join(datadir , 'target_1/train' , str(task_img))
+                target_path_2 = os.path.join(datadir , 'target_2/train' , str(task_img))
+                target_path_3 = os.path.join(datadir , 'target_3/train' , str(task_img))
+                target_path_4 = os.path.join(datadir , 'target_4/train' , str(task_img))
 
-                sal_out_flip = datadir + '/saliencymap/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
-                    task_img.split('.')[1])
-                stim_out_flip = datadir + '/stimuli/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
-                    task_img.split('.')[1])
+                sal_out_flip = os.path.join(datadir , 'saliencymap/train' , (str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])))
+                stim_out_flip = os.path.join(datadir , 'stimuli/train' , (str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])))
 
-                tar_out_flip_0 = datadir + '/target_0/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
-                    task_img.split('.')[1])
-                tar_out_flip_1 = datadir + '/target_1/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
-                    task_img.split('.')[1])
-                tar_out_flip_2 = datadir + '/target_2/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
-                    task_img.split('.')[1])
-                tar_out_flip_3 = datadir + '/target_3/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
-                    task_img.split('.')[1])
-                tar_out_flip_4 = datadir + '/target_4/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
-                    task_img.split('.')[1])
+                tar_out_flip_0 = os.path.join(datadir , 'target_0/train' , (str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])))
+                tar_out_flip_1 = os.path.join(datadir , 'target_1/train' , (str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])))
+                tar_out_flip_2 = os.path.join(datadir , 'target_2/train' , (str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])))
+                tar_out_flip_3 = os.path.join(datadir , 'target_3/train' , (str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])))
+                tar_out_flip_4 = os.path.join(datadir , 'target_4/train' , (str(task_img.split('.')[0]) + '_flip.' + str(
+                    task_img.split('.')[1])))
         else:
             
-            out_name = datadir + '/saliencymap/valid/' + str(task_img)
-            destination = datadir + '/stimuli/valid/' + str(task_img)
+            out_name = os.path.join(datadir , 'saliencymap/valid' , str(task_img))
+            destination = os.path.join(datadir , 'stimuli/valid' , str(task_img))
 
-            target_path_0 = datadir + '/target_0/valid/' + str(task_img)
-            target_path_1 = datadir + '/target_1/valid/' + str(task_img)
-            target_path_2 = datadir + '/target_2/valid/' + str(task_img)
-            target_path_3 = datadir + '/target_3/valid/' + str(task_img)
-            target_path_4 = datadir + '/target_4/valid/' + str(task_img)
+            target_path_0 = os.path.join(datadir , 'target_0/valid' , str(task_img))
+            target_path_1 = os.path.join(datadir , 'target_1/valid' , str(task_img))
+            target_path_2 = os.path.join(datadir , 'target_2/valid' , str(task_img))
+            target_path_3 = os.path.join(datadir , 'target_3/valid' , str(task_img))
+            target_path_4 = os.path.join(datadir , 'target_4/valid' , str(task_img))
 
         #uncomment this part to save colorful heatmap of fixations overlayed on images
         '''#create groundtruth heatmaps
@@ -378,54 +378,54 @@ def process_data(trajs_train,
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dldir', type=str, required=True, help='The directory to download the dataset.' , default='./')
+    parser.add_argument('--dldir', type=str, required=True, help='The directory to download the dataset.' , default='../')
     parser.add_argument('--sigma', type=int, required=True,
                         help='Gaussian standard deviation to blur the fixation maps.', default=11)
-    parser.add_argument('--datadir', type=str, required=True,
-                        help='The directory to save images along with their fixation maps.'
-                        , default = './cocosearch')
 
     args = parser.parse_args()
 
-    sl_map = os.path.join(args.datadir, 'saliencymap')
+    #The directory to save images along with their fixation maps.
+    datadir = os.path.join(args.dldir , 'cocosearch/')
+
+    sl_map = os.path.join(datadir, 'saliencymap')
     tr_sl_map = os.path.join(sl_map, 'train')
     v_sl_map = os.path.join(sl_map, 'valid')
     te_sl_map = os.path.join(sl_map, 'test')
     te_unbur_sl_map = os.path.join(sl_map, 'test_unblur')
 
-    stimuli = os.path.join(args.datadir, 'stimuli')
+    stimuli = os.path.join(datadir, 'stimuli')
     tr_stimuli = os.path.join(stimuli, 'train')
     v_stimuli = os.path.join(stimuli, 'valid')
     te_stimuli = os.path.join(stimuli, 'test')
     targ_t_stimuli = os.path.join(stimuli, 'test_targ_bbox')
 
-    target_0 = os.path.join(args.datadir, 'target_0')
+    target_0 = os.path.join(datadir, 'target_0')
     tr_target_0 = os.path.join(target_0, 'train')
     v_target_0 = os.path.join(target_0, 'valid')
     te_target_0 = os.path.join(target_0, 'test')
 
-    target_1 = os.path.join(args.datadir, 'target_1')
+    target_1 = os.path.join(datadir, 'target_1')
     tr_target_1 = os.path.join(target_1, 'train')
     v_target_1 = os.path.join(target_1, 'valid')
     te_target_1 = os.path.join(target_1, 'test')
 
-    target_2 = os.path.join(args.datadir, 'target_2')
+    target_2 = os.path.join(datadir, 'target_2')
     tr_target_2 = os.path.join(target_2, 'train')
     v_target_2 = os.path.join(target_2, 'valid')
     te_target_2 = os.path.join(target_2, 'test')
 
-    target_3 = os.path.join(args.datadir, 'target_3')
+    target_3 = os.path.join(datadir, 'target_3')
     tr_target_3 = os.path.join(target_3, 'train')
     v_target_3 = os.path.join(target_3, 'valid')
     te_target_3 = os.path.join(target_3, 'test')
 
-    target_4 = os.path.join(args.datadir, 'target_4')
+    target_4 = os.path.join(datadir, 'target_4')
     tr_target_4 = os.path.join(target_4, 'train')
     v_target_4 = os.path.join(target_4, 'valid')
     te_target_4 = os.path.join(target_4, 'test')
 
     os.makedirs(args.dldir, exist_ok=True)
-    os.makedirs(args.datadir, exist_ok=True)
+    os.makedirs(datadir, exist_ok=True)
 
     os.makedirs(sl_map, exist_ok=True)
     os.makedirs(tr_sl_map, exist_ok=True)
@@ -488,7 +488,7 @@ if __name__ == '__main__':
 
     # process fixation data
     process_data(human_scanpaths_train, human_scanpaths_valid, bbox_annos,
-                           args.sigma, args.dldir, args.datadir)
+                           args.sigma, dataset_root, datadir)
 
     train = next(os.walk(tr_stimuli))[2] 
     print(len(train))
