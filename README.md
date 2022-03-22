@@ -46,10 +46,10 @@ Original repository forked from the implementation of MSI-Net saliency network [
 
 All dependencies can be installed in a single docker image or an environment. 
 
-## Scripts Summary Info
+## Scripts Summary
 
 ```dataset_download.py``` downloads COCO-Search18 dataset, target images, target bounding boxes, and VGG16 pretrained weights on ImageNet. 
-```data_preprocessing.py``` Creates task-image pairs. Processes fixation data and creates Gaussian-blurred fixation maps. It resizes all images and fixation maps, augments data with horizontal flips, splits augmented data into train-test-validation sets. Unblurred fixation maps are also generated for test split to be used in saliency metrics computation.
+```data_preprocessing.py``` creates task-image pairs. Processes fixation data and creates Gaussian-blurred fixation maps. It resizes all images and fixation maps, augments data with horizontal flips, splits augmented data into train-test-validation sets. Unblurred fixation maps are also generated for test split to be used in saliency metrics computation.
 ```config.py``` contains the hyperparameters of training such as batch size and number of epochs.
 ```data.py ``` prepares and fetches the data to be efficiently used by gpu. It also handles the iteration over data during training and testing.
 ```model.py``` defines the model architecture, loads the pretrained weights, and performs the optimization and training operation.
@@ -63,11 +63,11 @@ All dependencies can be installed in a single docker image or an environment.
 
 Run ```run_all.sh``` to run all steps including: 
 
-1 - downloading the dataset
-2 - data preprocessing
-3 - training
-4 - testing
-5 - computing saliency metrics 
+1-downloading the dataset
+2-data preprocessing
+3-training
+4-testing
+5-computing saliency metrics 
 
 You need to change the arguments related to each script accordingly. 
 In the following, we explain each step in details. 
@@ -104,7 +104,8 @@ Run ```data_preprocessing.py```  as:
 
 To train the model on the dataset, run ```main.py``` as below:
 
-```python /nas/EOS/users/manoosh/sal/Predicting-Salience-During-Visual-Search/main.py \
+```
+    python /nas/EOS/users/manoosh/sal/Predicting-Salience-During-Visual-Search/main.py \
         --path=$DOWNLOAD_DIR \
         --phase=$PHASE \
         --threshold=$THRESHOLD
@@ -117,7 +118,8 @@ To train the model on the dataset, run ```main.py``` as below:
 
 To test the model on the dataset, we should change the ```phase``` to ```'test'``` and re-run ```main.py```:
 
-```python /nas/EOS/users/manoosh/sal/Predicting-Salience-During-Visual-Search/main.py \
+```
+    python /nas/EOS/users/manoosh/sal/Predicting-Salience-During-Visual-Search/main.py \
         --path=$DOWNLOAD_DIR \
         --phase=$PHASE \
         --threshold=$THRESHOLD
@@ -130,7 +132,8 @@ To test the model on the dataset, we should change the ```phase``` to ```'test'`
 
 To compute saliency metrics, run ```compute_saliency_metrics.py``` as:
 
-```python /nas/EOS/users/manoosh/sal/Predicting-Salience-During-Visual-Search/compute_saliency_metrics.py \
+```
+    python /nas/EOS/users/manoosh/sal/Predicting-Salience-During-Visual-Search/compute_saliency_metrics.py \
         --path=$DOWNLOAD_DIR  \
         --use-pysaliency=$PYSAL \
         --csv-path=$CSV_DIR
