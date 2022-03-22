@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 import loss
 import tensorflow as tf
+import numpy as np
 
 class History:
     """This class represents the training history of a model. It can load the

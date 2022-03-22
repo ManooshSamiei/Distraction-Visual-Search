@@ -10,13 +10,17 @@ from dataset_download import download_cocosearch
 
 
 def GaussianMask(sizex, sizey, sigma=11, center=None, fix=1):
-    """
-    sizex  : mask width
-    sizey  : mask height
-    sigma  : gaussian Sd
-    center : gaussian mean
-    fix    : gaussian max
-    return gaussian mask
+    """Blurs each fixation point by convolving it
+        with a Gaussian kernel. This function is adopted from
+        https://github.com/takyamamoto/Fixation-Densitymap repository.
+    args:
+        sizex (int): mask width
+        sizey (int): mask height
+        sigma (int): gaussian std
+        center (tuple): gaussian mean
+        fix (int or float): gaussian max
+    returns:
+        gaussian mask
     """
 
     x = np.arange(0, sizex, 1, float)
@@ -37,7 +41,7 @@ def GaussianMask(sizex, sizey, sigma=11, center=None, fix=1):
 
 
 def preprocess_fixations(phase,
-                         train_task_img_pair,
+                         task_img_pair,
                          trajs,
                          im_h,
                          im_w,
@@ -45,10 +49,27 @@ def preprocess_fixations(phase,
                          sigma,
                          dldir,
                          datadir,
-                         truncate_num=-1,
-                         need_label=True):
+                         truncate_num=-1):
+    """Processes fixation data and creates 
+        fixation maps. Resizes all search and target images 
+        and save them in the corresponding directories. 
+        Splits data into train-validation-test sets. 
+        Augments the training data.
+        saves unblurred fixation maps for saliency metric computation.
+        saves target bbox overlayed test images for the purpose of results visualization.
+    Args:
+        phase (str): train or valid set (test set is separated from train set)
+        task_img_pair (list): a list of task-image pairs 
+        trajs (list): a list of all trials 
+        im_h (int): resize search images to this height
+        im_w (int): resize search images to this width
+        bbox  (dict): target object bbox for each task-image pair
+        sigma (int): sigma for Gaussian blurring function
+        dldir (str): directory of downloaded data
+        datadir (str): directory to save the preprocessed train/val/test sets
+        truncate_num (int): maximum number of fixations to be processed from each trial
+    """
     fix_labels = []
-    fixs = []
     stimuli = []
     heat_maps_list = []
     min_fix_x = 100000
@@ -56,15 +77,10 @@ def preprocess_fixations(phase,
     min_fix_y = 100000
     max_fix_y = -100000
     flat_test_task_img_pair = []
-    '''not_augment = ['bottle', 'bowl' , 'cup', 'car', 'chair', 
-                   'clock', 'fork', 'keyboard', 'knife', 
-                   'laptop', 'microwave', 'mouse', 'oven',
-                   'potted plant', 'sink', 'stop sign', 
-                   'toilet', 'tv']'''
-    not_augment = []
+
     if phase == 'train':
         test_task_img_pair = []
-        for key, group in groupby(train_task_img_pair, lambda x: x.split('_')[0]):
+        for key, group in groupby(task_img_pair, lambda x: x.split('_')[0]):
             key_and_group = {key: random.sample(list(group), 18)}
             test_task_img_pair.append(key_and_group[key])
 
@@ -87,7 +103,7 @@ def preprocess_fixations(phase,
             if traj['Y'][i] > max_fix_y:
                 max_fix_y = traj['Y'][i]
 
-    for task_img in train_task_img_pair:
+    for task_img in task_img_pair:
 
         heatmap = np.zeros((im_h, im_w), np.float32)
         heatmap_unblurred = np.zeros((im_h, im_w), np.float32)
@@ -97,34 +113,31 @@ def preprocess_fixations(phase,
         w_image = bbox[task_img][2]
         h_image = bbox[task_img][3]
 
-        # observer =0
         for traj in trajs:
 
             if (traj['task'] + '_' + traj['name']) == task_img:
-                # observer +=1
+
                 # first fixations are fixed at the screen center
                 traj['X'][0], traj['Y'][0] = im_w / 2, im_h / 2
-                # fixs = [(traj['X'][0], traj['Y'][0])]
                 if truncate_num < 1:
                     traj_len = len(traj['X'])
                 else:
                     traj_len = min(truncate_num, len(traj['X']))
 
                 for i in range(1, traj_len):
+                    # remove out of boundary fixations
                     if traj['X'][i] < 0 or traj['Y'][i] < 0 or traj['X'][i] > 1680 or traj['Y'][i] > 1050:
                         continue
                     fix = (
                         ((traj['X'][i] - min_fix_x) / max_fix_x) * (512),
                         ((traj['Y'][i] - min_fix_y) / max_fix_y) * (320))
-                    # remove returning fixations (enforce inhibition of return)
-                    if fix in fixs:
+                    
+                    # masking the target, uncomment if you want to mask the target
+                    '''
+                    if (x1<=fix[0]<=x1+w_image and y1<=fix[1]<=y1+h_image):
                         continue
-                    '''else:
-                        fixs.append(fix)'''
-                    # masking the target
-                    '''if (x1<=fix[0]<=x1+w_image and y1<=fix[1]<=y1+h_image):
-                        continue
-                    else:'''
+                    else:
+                    '''
                     heatmap += GaussianMask(im_w, im_h, sigma, (fix[0], fix[1]))
                     heatmap_unblurred[int(fix[1]), int(fix[0])] = 1
 
@@ -177,11 +190,14 @@ def preprocess_fixations(phase,
         img_target_frame=cv2.rectangle(img_resized.copy(),(x1,y1),(x1+w_image,y1+h_image),(0,255,0),2)
         
         unblur = False
+        flip_f = False
 
         if phase == 'train':
 
             if task_img in flat_test_task_img_pair:
-                f = False
+ 
+                unblur = True
+
                 out_name = datadir + '/saliencymap/test/' + str(task_img)
                 out_name_np = datadir + '/saliencymap/test/' + os.path.splitext(str(task_img))[0]+'.npy'
                 
@@ -198,12 +214,13 @@ def preprocess_fixations(phase,
                 img_target_rect_path = datadir + '/stimuli/test_targ_bbox/' + str(task_img)
                 cv2.imwrite(img_target_rect_path, img_target_frame)
                 
-                unblur = True
                 out_name_unblur = datadir + '/saliencymap/test_unblur/' + str(task_img)
                 out_name_unblur_npy = datadir + '/saliencymap/test_unblur/' + os.path.splitext(str(task_img))[0]+'.npy'
 
             else:
-                f = True
+
+                flip_f = True
+
                 out_name = datadir + '/saliencymap/train/' + str(task_img)
                 destination = datadir + '/stimuli/train/' + str(task_img)
 
@@ -229,7 +246,7 @@ def preprocess_fixations(phase,
                 tar_out_flip_4 = datadir + '/target_4/train/' + str(task_img.split('.')[0]) + '_flip.' + str(
                     task_img.split('.')[1])
         else:
-            f = False
+            
             out_name = datadir + '/saliencymap/valid/' + str(task_img)
             destination = datadir + '/stimuli/valid/' + str(task_img)
 
@@ -239,10 +256,12 @@ def preprocess_fixations(phase,
             target_path_3 = datadir + '/target_3/valid/' + str(task_img)
             target_path_4 = datadir + '/target_4/valid/' + str(task_img)
 
+        #uncomment this part to save colorful heatmap of fixations overlayed on images
+        '''#create groundtruth heatmaps
         heatmap_color = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
 
         # Create mask
-        threshold = 10
+        threshold = 30 #10
 
         mask = np.where(heatmap <= threshold, 1, 0)
         mask = np.reshape(mask, (im_h, im_w, 1))
@@ -254,17 +273,18 @@ def preprocess_fixations(phase,
         marge = marge.astype("uint8")
         alpha = 0.5
 
-        marge = cv2.addWeighted(img_resized, 1 - alpha, marge, alpha, 0)
+        marge = cv2.addWeighted(img_resized, 1 - alpha, marge, alpha, 0)'''
 
         cv2.imwrite(destination, img_resized)
         cv2.imwrite(out_name, heatmap)
+        #cv2.imwrite(out_name, marge)
         cv2.imwrite(target_path_0, target_0)
         cv2.imwrite(target_path_1, target_1)
         cv2.imwrite(target_path_2, target_2)
         cv2.imwrite(target_path_3, target_3)
         cv2.imwrite(target_path_4, target_4)
 
-        if f and (str(task_img.split('_')[0]) not in not_augment):
+        if flip_f:
             cv2.imwrite(stim_out_flip, img_resized_flip)
             cv2.imwrite(sal_out_flip, heatmap_flip)
             cv2.imwrite(tar_out_flip_0, target_flip_0)
@@ -285,11 +305,22 @@ def process_data(trajs_train,
                  target_annos,
                  sigma,
                  dldir,
-                 datadir,
-                 is_testing=False):
+                 datadir):
+    """creates task-image pairs for training and validation sets
+        then calls preprocess_fixations func to 
+        create fixation maps and train-test-valid split.
+    args:
+        trajs_train (list): a list of all trials in the original dataset training split 
+        trajs_valid (list): a list of all trials in the original dataset validation split 
+        target_annos (dict):  contains target object bbox for each task-image pair
+        sigma (int): sigma for Gaussian blurring function
+        dldir (str): directory of downloaded data
+        datadir (str): directory to save the preprocessed train/val/test sets
+    """
+
     im_w = 512
     im_h = 320
-    max_traj_length = 6
+    #max_traj_length = 6
 
     target_init_fixs = {}
     cat_names = list(np.unique([x['task'] for x in trajs_train]))
@@ -299,6 +330,7 @@ def process_data(trajs_train,
     train_task_img_pair = np.unique(
         [traj['task'] + '_' + traj['name'] for traj in trajs_train])
 
+    # uncomment this part to process train data for only a single category
     '''train_task_img_pair = []
     for traj in trajs_train:
       if traj['task'] =='tv':
@@ -315,12 +347,13 @@ def process_data(trajs_train,
         sigma,
         dldir,
         datadir,
-        truncate_num=max_traj_length)
+        truncate_num=-1)
 
     # validation fixation data
     valid_task_img_pair = np.unique(
         [traj['task'] + '_' + traj['name'] for traj in trajs_valid])
 
+    # uncomment this part to process valid data for only a single category
     '''valid_task_img_pair = []
     for traj in trajs_valid:
       if traj['task'] =='tv':
@@ -337,7 +370,7 @@ def process_data(trajs_train,
         sigma,
         dldir,
         datadir,
-        truncate_num=max_traj_length)
+        truncate_num=-1)
 
     return 
 
@@ -345,11 +378,12 @@ def process_data(trajs_train,
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dldir', type=str, required=True, help='The directory to download the dataset.')
+    parser.add_argument('--dldir', type=str, required=True, help='The directory to download the dataset.' , default='./')
     parser.add_argument('--sigma', type=int, required=True,
-                        help='Gaussian standard deviation to blur the fixation maps.')
+                        help='Gaussian standard deviation to blur the fixation maps.', default=11)
     parser.add_argument('--datadir', type=str, required=True,
-                        help='The directory to save images along with their fixation maps.')
+                        help='The directory to save images along with their fixation maps.'
+                        , default = './cocosearch')
 
     args = parser.parse_args()
 
@@ -430,16 +464,11 @@ if __name__ == '__main__':
     os.makedirs(v_target_4, exist_ok=True)
     os.makedirs(te_target_4, exist_ok=True)
 
-    # Downloading COCOSearch Dataset
-
-    #download_cocosearch(args.dldir)
-
     dataset_root = args.dldir
 
     # bounding box of the target object (for search efficiency evaluation)
     bbox_annos = np.load(join(dataset_root, 'bbox_annos.npy'),
                          allow_pickle=True).item()
-    # print(bbox_annos)
 
     # load ground-truth human scanpaths
 
