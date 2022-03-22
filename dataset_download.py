@@ -5,7 +5,7 @@ import os
 import wget
 import zipfile
 import gdown
-
+import argparse
 
 def unzip(zip_path, extract_path):
     """extracts the files in a zip file
@@ -61,3 +61,11 @@ def download_cocosearch(data_path):
 
     print("done!", flush=True)
     return
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dldir', type=str, required=True, help='The directory to download the dataset.' , default='./')
+    args = parser.parse_args()
+
+    download_cocosearch(args.dldir)

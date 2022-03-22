@@ -46,15 +46,39 @@ Original repository forked from the implementation of MSI-Net saliency network [
 
 All dependencies can be installed in a single docker image or an environment. 
 
+## Running All Steps at Once
 
 
-## Dataset Download + Preprocessing
 
-```dataset_download.py``` --> downloads COCO-Search18 dataset, target images, and VGG16 pretrained weights on ImageNet.
 
-```data_preprocessing.py``` --> Creates task-image pairs. Processes fixation data and creates Gaussian-blurred fixation maps. It resizes all images and fixation maps, augments data with horizontal flips, splits augmented data into train-test-validation sets. Unblurred fixation maps are also generated for test split to be used in saliency metrics computation. 
+## Following a step by step guide
 
- ```data_preprocessing.py``` file automatically calls ```dataset_download.py```. Therefore we only need to run ```data_preprocessing.py``` as below:
+## Step 1: Dataset Download 
+
+```dataset_download.py``` downloads COCO-Search18 dataset, target images, target bounding boxes, and VGG16 pretrained weights on ImageNet. For running this script we specify below arguments:
+
+```dldir```: is the directory path to save the downloaded dataset and weights. The default vlues is ```./```.  
+
+And we run it using:
+
+```
+    python ./dataset_download.py \
+    --dldir=$DOWNLOAD_DIR 
+```
+
+## Step 2: Data Preprocessing
+
+
+```data_preprocessing.py``` Creates task-image pairs. Processes fixation data and creates Gaussian-blurred fixation maps. It resizes all images and fixation maps, augments data with horizontal flips, splits augmented data into train-test-validation sets. Unblurred fixation maps are also generated for test split to be used in saliency metrics computation. For running this script we specify below arguments:
+
+
+```dldir``` is the directory path to save the downloaded dataset and weights. The default vlues is ```./```.  
+
+```datadir ``` is the path to the folder where the preprocessed images and fixation maps for train, validation, and test sets are stored. The default values is ```./cocosearch```.  
+
+```sigma``` determines the Gaussian blurring standard deviation. The default value of ```11``` is used. As in MIT saliency benchmark we set the cut-off frequency ```f_c``` as ```8```. Using <img src="http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bf_c%7D%7B%5Csqrt%7B2%2A%5Clog%7B2%7D%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt="\frac{f_c}{\sqrt{2*\log{2}}}" width="90" height="49" /> formula we derive a sigma of ```10.31``` and round it up to ```11```. 
+
+And we run it using:
 
 ```
     python ./data_preprocessing.py \
@@ -62,14 +86,6 @@ All dependencies can be installed in a single docker image or an environment.
     --sigma=$SIGMA \
     --datadir=$DATA_DIR \
 ```
-
-```sigma``` specifies the Gaussian blurring standard deviation. The default value of ```11``` is used. As in MIT saliency benchmark we set the cut-off frequency ```f_c``` as ```8```. Using <img src="http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bf_c%7D%7B%5Csqrt%7B2%2A%5Clog%7B2%7D%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt="\frac{f_c}{\sqrt{2*\log{2}}}" width="90" height="49" />) formula we derive a sigma of ```10.31``` and round it up to ```11```. 
-```
-## Running All Steps at Once
-
-
-
-
 
 
 ## Results
