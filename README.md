@@ -1,6 +1,6 @@
 # Predicting where people fixate when searching for an object
 
-This repository contains the tensorflow implementation of paper **"Where people fixate when searching for an object"** 
+This repository contains the tensorflow implementation of paper **"Predicting where people fixate when searching for an object"** 
 
 ## Architecture
 <img src="./images/Model.png" width="800"/>
