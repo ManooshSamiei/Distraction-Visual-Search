@@ -63,11 +63,11 @@ All dependencies can be installed in a single docker image or an environment.
 
 Run ```run_all.sh``` to run all steps including: 
 
-1-downloading the dataset <br/>
-2-data preprocessing <br/>
-3-training <br/>
-4-testing <br/>
-5-computing saliency metrics 
+1- downloading the dataset <br/>
+2- data preprocessing <br/>
+3- training <br/>
+4- testing <br/>
+5- computing saliency metrics 
 
 You need to change the arguments related to each script accordingly. 
 In the following, we explain each step in details. 
@@ -79,7 +79,7 @@ In the following, we explain each step in details.
 Run ```dataset_download.py``` as below:
 
 ```
-    python ./dataset_download.py \
+    python dataset_download.py \
     --dldir=$DOWNLOAD_DIR 
 ```
 
@@ -91,7 +91,7 @@ Run ```dataset_download.py``` as below:
 Run ```data_preprocessing.py```  as:
 
 ```
-    python ./data_preprocessing.py \
+    python data_preprocessing.py \
     --dldir=$DOWNLOAD_DIR \
     --sigma=$SIGMA
 ```
@@ -105,7 +105,7 @@ Run ```data_preprocessing.py```  as:
 To train the model on the dataset, run ```main.py``` as below:
 
 ```
-    python /nas/EOS/users/manoosh/sal/Predicting-Salience-During-Visual-Search/main.py \
+    python main.py \
         --path=$DOWNLOAD_DIR \
         --phase=$PHASE \
         --threshold=$THRESHOLD
@@ -119,7 +119,7 @@ To train the model on the dataset, run ```main.py``` as below:
 To test the model on the dataset, we should change the ```phase``` to ```'test'``` and re-run ```main.py```:
 
 ```
-    python /nas/EOS/users/manoosh/sal/Predicting-Salience-During-Visual-Search/main.py \
+    python main.py \
         --path=$DOWNLOAD_DIR \
         --phase=$PHASE \
         --threshold=$THRESHOLD
@@ -133,7 +133,7 @@ To test the model on the dataset, we should change the ```phase``` to ```'test'`
 To compute saliency metrics, run ```compute_saliency_metrics.py``` as:
 
 ```
-    python /nas/EOS/users/manoosh/sal/Predicting-Salience-During-Visual-Search/compute_saliency_metrics.py \
+    python compute_saliency_metrics.py \
         --path=$DOWNLOAD_DIR  \
         --use-pysaliency=$PYSAL \
         --csv-path=$CSV_DIR
