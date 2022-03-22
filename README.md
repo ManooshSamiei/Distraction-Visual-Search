@@ -48,25 +48,25 @@ All dependencies can be installed in a single docker image or an environment.
 
 ## Scripts Summary
 
-```dataset_download.py``` downloads COCO-Search18 dataset, target images, target bounding boxes, and VGG16 pretrained weights on ImageNet. 
-```data_preprocessing.py``` creates task-image pairs. Processes fixation data and creates Gaussian-blurred fixation maps. It resizes all images and fixation maps, augments data with horizontal flips, splits augmented data into train-test-validation sets. Unblurred fixation maps are also generated for test split to be used in saliency metrics computation.
-```config.py``` contains the hyperparameters of training such as batch size and number of epochs.
-```data.py ``` prepares and fetches the data to be efficiently used by gpu. It also handles the iteration over data during training and testing.
-```model.py``` defines the model architecture, loads the pretrained weights, and performs the optimization and training operation.
-```loss.py```  contains the KLD loss function, that is computed between the groundtruth and predicted saliecy maps.
-```utils.py``` represents the training history of a model, keeps track of training and validation error, visualizes the training progress using a progress bar and prints the summary of training and validation loss.
-```main.py``` defines the paths to data, results and weights, and handles the training and testing procedures by calling other scripts.
-```compute_saliency_metrics.py``` computes the saliency metrics for each image of the test set by calling ```metrics.py``` script. It is possible to also use pysaliency library for measuring the metrics. However for consistency with the paper results, you should use ```metrics.py```. The average metric results (of ```metrics.py```) are written in a csv file. 
-```metrics.py``` contains the the implementation of all saliency metrics namely: AUC-Judd, AUC-Borji, sAUC, NSS, KLD, CC, SIM, and IG.  
+```dataset_download.py``` downloads COCO-Search18 dataset, target images, target bounding boxes, and VGG16 pretrained weights on ImageNet. <br/>
+```data_preprocessing.py``` creates task-image pairs. Processes fixation data and creates Gaussian-blurred fixation maps. It resizes all images and fixation maps, augments data with horizontal flips, splits augmented data into train-test-validation sets. Unblurred fixation maps are also generated for test split to be used in saliency metrics computation. <br/>
+```config.py``` contains the hyperparameters of training such as batch size and number of epochs. <br/>
+```data.py ``` prepares and fetches the data to be efficiently used by gpu. It also handles the iteration over data during training and testing. <br/>
+```model.py``` defines the model architecture, loads the pretrained weights, and performs the optimization and training operation. <br/>
+```loss.py```  contains the KLD loss function, that is computed between the groundtruth and predicted saliecy maps. <br/>
+```utils.py``` represents the training history of a model, keeps track of training and validation error, visualizes the training progress using a progress bar and prints the summary of training and validation loss. <br/>
+```main.py``` defines the paths to data, results and weights, and handles the training and testing procedures by calling other scripts. <br/>
+```compute_saliency_metrics.py``` computes the saliency metrics for each image of the test set by calling ```metrics.py``` script. It is possible to also use pysaliency library for measuring the metrics. However for consistency with the paper results, you should use ```metrics.py```. The average metric results (of ```metrics.py```) are written in a csv file. <br/>
+```metrics.py``` contains the the implementation of all saliency metrics namely: AUC-Judd, AUC-Borji, sAUC, NSS, KLD, CC, SIM, and IG. 
 
 ## Running All Steps at Once
 
 Run ```run_all.sh``` to run all steps including: 
 
-1-downloading the dataset
-2-data preprocessing
-3-training
-4-testing
+1-downloading the dataset <br/>
+2-data preprocessing <br/>
+3-training <br/>
+4-testing <br/>
 5-computing saliency metrics 
 
 You need to change the arguments related to each script accordingly. 
