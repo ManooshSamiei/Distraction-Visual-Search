@@ -145,4 +145,4 @@ To compute saliency metrics, run ```compute_saliency_metrics.py``` as:
 
 ## Sample Results
 
-<img src="./images/results_1.png" width="1000"/>
+<img src="./images/results_1.png" width="800"/>
