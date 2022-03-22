@@ -1,6 +1,6 @@
-# Where people fixate when searching for an object
+# Predicting where people fixate when searching for an object
 
-This repository contains the tensorflow implementation of paper **"Where people fixate when searching for an object"** 
+This repository contains the tensorflow implementation of paper **"Predicting where people fixate when searching for an object"** 
 
 ## Architecture
 <img src="./images/Model.png" width="800"/>
@@ -16,7 +16,7 @@ Original repository forked from the implementation of MSI-Net saliency network [
 
 ```
 @article{Samiei2021visualsearch,
-  title={Where people fixate when searching for an object},
+  title={Predicting where people fixate when searching for an object},
     journal = {Journal of Vision},
     volume = {},
     number = {},
