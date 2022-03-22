@@ -264,7 +264,16 @@ class MSINET:
         self._output = decoder_output
 
     def _overlay(self, feature1, feature2):
-
+        """This function convolves the features extracted from stimuli
+            and target streams. It uses a convolutional layer 
+            and uses features of the target image as convolution filters
+            for stimulus features.
+        Args:
+            feature1 (tensor, float32): A 4D tensor that contains the features of stimuli.
+            feature2 (tensor, int32): A 4D tensor that contains the features of target.
+        Returns:
+            tensor, float32: A 4D tensor that holds the output of convolving the two streams.
+        """
 
         shape_channel = (feature2.get_shape())[1]
         feature2 = tf.squeeze(feature2, axis=0)
@@ -338,7 +347,7 @@ class MSINET:
                                       raw input images.
         Returns:
             tensor, float32: A 4D tensor that holds the values of the
-                             predicted saliency maps.
+                             extracted features from ASPP module.
         """
 
         self._encoder(stimuli)
@@ -347,18 +356,29 @@ class MSINET:
         return self._output
 
     def one_stream(self, stimuli_features):
-        """Contains the output of the one stream network, which is the
-            predicted fixation density map."""
-
+        """creates the output of the one stream network, which is the
+            predicted fixation density map.
+        Args:
+            stimuli_features (tensor, float32): A 4D tensor containing the features of stimuli.
+        Returns:
+            tensor, float32: A 4D tensor that holds the values of the
+                             predicted saliency maps.
+        """
         self._decoder(self._output)
         self._normalize(self._output)
 
         return self._output
 
     def output_stream(self, stimuli_features, target_features):
-        """Contains the output of the network, which is the
-            predicted fixation density map."""
-
+        """creates the output of the two stream network, which is the
+            predicted fixation density map.
+        Args:
+            stimuli_features (tensor, float32): A 4D tensor containing the features of stimuli.
+            target_features (tensor, float32): A 4D tensor containing the features of target.
+        Returns:
+            tensor, float32: A 4D tensor that holds the values of the
+                             predicted saliency maps.
+        """
         self._overlay(stimuli_features, target_features)
         self._decoder(self._output)
         self._normalize(self._output)

@@ -89,6 +89,7 @@ def train_model(dataset, paths, device):
 
     predicted_maps = msinet.output_stream(feature_map_stimuli, feature_map_target)
 
+    # uncomment if you want to test with one stream network
     # predicted_maps = msinet.one_stream(feature_map_stimuli)
 
     optimizer, loss = msinet.train(ground_truths, predicted_maps,
@@ -127,12 +128,6 @@ def train_model(dataset, paths, device):
             sess.run(train_init_op)
 
             for batch in range(n_train_batches):
-
-                #f_map = sess.run(feature_map_stimuli)
-                #print(f_map.shape)
-
-                #t_map = sess.run(feature_map_target)
-                #print(t_map.shape)
 
                 _ , error = sess.run([optimizer, loss])
 

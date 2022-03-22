@@ -7,9 +7,12 @@ import random
 
 class COCOSEARCH:
 
-    """This class represents the COCOSearch18 dataset. It consists of 3101
+    """This class represents the COCO-Search18 dataset. It consists of 3101
        target-present images. All stimuli are of size 1680x1050 pixels
-       and are resized to 512x320 (height by width).
+       and are resized to 512x320 (height by width). It also randomly chooses
+       one of the five available sample target images for image stimuli. 
+       Thus at each epoch when the dataset iterator is re-initialized, 
+       the network randomly chooses a different set of sample targets.       
 
     Attributes:
         n_train: Number of training instances as defined in the dataset.
@@ -24,8 +27,8 @@ class COCOSEARCH:
 
     def __init__(self, data_path):
 
-        type(self).n_train = len(next(os.walk(data_path + "cocosearch/stimuli/train"))[2])  #2823  # 95*2
-        type(self).n_valid = len(next(os.walk(data_path + "cocosearch/stimuli/valid"))[2]) #324  # 17*2
+        type(self).n_train = len(next(os.walk(data_path + "cocosearch/stimuli/train"))[2])
+        type(self).n_valid = len(next(os.walk(data_path + "cocosearch/stimuli/valid"))[2])
         
         self._stimuli_size = config.DIMS["image_size_cocosearch"]
         self._target_size = config.DIMS["image_target_size_cocosearch"]
@@ -79,7 +82,7 @@ class TEST:
     n_test = 0
     def __init__(self, dataset, data_path):
         
-        type(self).n_test = len(next(os.walk(data_path + "cocosearch/stimuli/test"))[2])  #324  #18
+        type(self).n_test = len(next(os.walk(data_path + "cocosearch/stimuli/test"))[2])
 
         self._stimuli_size = config.DIMS["image_size_cocosearch"]
         self._target_size = config.DIMS["image_target_size_cocosearch"]
@@ -183,8 +186,10 @@ def _fetch_dataset(files, stimuli_size, target_size, shuffle, online=False):
        loaded, batched, and prefetched to ensure high GPU utilization.
     Args:
         files (list, str): A list that holds the paths to all file instances.
+        stimuli_size (tuple, int): A tuple that specifies the size to which
+                                  the search images and saliency maps will be reshaped.
         target_size (tuple, int): A tuple that specifies the size to which
-                                  the data will be reshaped.
+                                  the target image will be reshaped.
         shuffle (bool): Determines whether the dataset will be shuffled or not.
         online (bool, optional): Flag that decides whether the batch size must
                                  be 1 or can take any value. Defaults to False.
@@ -217,8 +222,10 @@ def _parse_function(files, stimuli_size, target_size):
         files (tuple, str): A tuple with the paths to all file instances.
                             The first element contains the stimuli and, if
                             present, the second one the ground truth maps.
+        stimuli_size (tuple, int): A tuple that specifies the size to which
+                                  the stimuli/saliency map will be reshaped.
         target_size (tuple, int): A tuple that specifies the size to which
-                                  the data will be reshaped.
+                                  the target will be reshaped.
     Returns:
         list: A list that holds the image instances along with their
               shapes and file paths.
@@ -237,10 +244,10 @@ def _parse_function(files, stimuli_size, target_size):
                                                     channels=channels))
         original_size = tf.shape(image)[:2]
 
-        if count == 2:
+        if count == 2: #target images
             image = _resize_image(image, target_size)
         
-        elif count ==0 or count==1:
+        elif count == 0 or count == 1: #saliency maps and stimuli
 
             image = _resize_image(image, stimuli_size)
 
@@ -275,7 +282,6 @@ def _resize_image(image, target_size, overfull=False):
 
     current_size = tf.shape(image)[:2]
 
-    #target_size = tf.cast(tf.round(current_size), tf.int32)
     height_ratio = target_size[0] / current_size[0]
     width_ratio = target_size[1] / current_size[1]
 
@@ -333,23 +339,6 @@ def _get_file_list(data_path):
         raise FileNotFoundError("No data was found")
 
     return data_list
-
-
-def _get_random_indices(list_length):
-    """A helper function to generate an array of randomly shuffled indices
-       to divide the MIT1003 and CAT2000 datasets into training and validation
-       instances.
-    Args:
-        list_length (int): The number of indices that is randomly shuffled.
-    Returns:
-        array, int: A 1D array that contains the shuffled data indices.
-    """
-
-    indices = np.arange(list_length)
-    prng = np.random.RandomState(42)
-    prng.shuffle(indices)
-
-    return indices
 
 
 def _check_consistency(zipped_file_lists, n_total_files):
