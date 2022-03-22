@@ -114,7 +114,7 @@ To train the model on the dataset, run ```main.py``` as below:
 ```phase``` defines whether to train/test the model on the data.  The default vlues is ```'train'```.
 ```threshold``` defines the threshold for creating binary mask used during jet-color heatmap generation. The default vlues is ```30```.
 
-## step 3: Testing
+## Step 3: Testing
 
 To test the model on the dataset, we should change the ```phase``` to ```'test'``` and re-run ```main.py```:
 
@@ -128,7 +128,7 @@ To test the model on the dataset, we should change the ```phase``` to ```'test'`
 ```phase``` defines whether to train/test the model on the data.  The default vlues is ```'train'```.
 ```threshold``` defines the threshold for creating binary mask used during jet-color heatmap generation. The default vlues is ```30```.
 
-## step 4: Computing Saliency Metrics
+## Step 4: Computing Saliency Metrics
 
 To compute saliency metrics, run ```compute_saliency_metrics.py``` as:
 
