@@ -1,4 +1,4 @@
-# Where people fixate when searching for an object
+# Predicting where people fixate when searching for an object
 
 This repository contains the tensorflow implementation of paper **"Where people fixate when searching for an object"** 
 
