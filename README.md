@@ -72,9 +72,9 @@ All dependencies can be installed in a single docker image or an environment.
   __________
 |/2 * log{2}
 ```
+[img] (http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bf_c%7D%7B%5Csqrt%7B2%2A%5Clog%7B2%7D%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0[/img])
 
-
-<img src='./images/formula.png' width = '200'/>
+<img src='./images/formula.jpg' width = '200'/>
 ## Running All Steps at Once
 
 
