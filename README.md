@@ -143,8 +143,6 @@ To compute saliency metrics, run ```compute_saliency_metrics.py``` as:
 ```use-pysaliency``` is the flag that specifies whether to use pysaliency library to compute saliency metrics. The default vlues is ```False```.
 ```csv-path``` specifies the path to save the csv file containing computed saliency metrics. The default vlues is ```'../results/'```.
 
-## Results
-
-### Sample results:
+## Sample Results
 
 <img src="./images/results_1.png" width="1000"/>
