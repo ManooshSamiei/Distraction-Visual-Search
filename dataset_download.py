@@ -1,3 +1,6 @@
+'''This file downloads COCO-Search18 dataset, target images,
+ and VGG16 pretrained weights on ImageNet.'''
+
 import os
 import wget
 import zipfile
@@ -6,7 +9,11 @@ import gdown
 
 def unzip(zip_path, extract_path):
     """extracts the files in a zip file
-    in the specified directory"""
+       in the specified directory
+    args:
+        zip_path (str): the path to the zip file
+        extract_path (str): the path to save the extracted files 
+    """
 
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
         for file in zip_ref.namelist():
