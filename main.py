@@ -290,7 +290,7 @@ def main():
 
     phases_list = ["train", "test"]
 
-    dataset = 'mit1003'#'pascals'#'salicon'#'cocosearch'
+    dataset = 'cocosearch'#'mit1003'#'pascals'#'salicon'#
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
