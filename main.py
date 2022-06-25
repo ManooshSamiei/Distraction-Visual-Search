@@ -172,7 +172,7 @@ def test_model(dataset, paths, device):
 
     next_element, init_op = iterator
 
-    input_images, ground_truths, input_targets, original, file_path = next_element
+    input_images, input_targets, original, file_path = next_element
 
     original_shape = (320, 512)
 
@@ -185,7 +185,7 @@ def test_model(dataset, paths, device):
             graph_def.ParseFromString(file.read())
 
     predicted_maps = tf.import_graph_def(graph_def,
-                                         input_map={"input": input_images, "input_2": input_targets},
+                                         input_map={"input": input_images},#, "input_2": input_targets},
                                          return_elements=["output:0"])
 
     predicted_maps = tf.squeeze(predicted_maps, axis=0)
@@ -234,7 +234,7 @@ def jet_map(paths, threshold=30, alpha=0.5):
         alpha (float): weight for overlaying the get color map and the original image
     """
 
-    test_data_path = paths['data'] + 'cocosearch/stimuli/test_targ_bbox/'
+    test_data_path = paths['data'] + 'cocosearch/stimuli/test_targ_bbox/'#test_store
     prediction_path = paths['images']
     output_dir = paths['images'] + 'images_jet/'
     gnd_dir = paths['data'] + 'cocosearch/saliencymap/test/'
@@ -290,7 +290,7 @@ def main():
 
     phases_list = ["train", "test"]
 
-    dataset = 'cocosearch'
+    dataset = 'mit1003'#'pascals'#'salicon'#'cocosearch'
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
