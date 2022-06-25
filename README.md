@@ -1,4 +1,4 @@
-# Predicting where people fixate when searching for an object
+# Method 1: Predicting where people fixate when searching for an object
 
 This repository contains the tensorflow implementation of paper **"Predicting where people fixate when searching for an object"** 
 
@@ -146,3 +146,6 @@ To compute saliency metrics, run ```compute_saliency_metrics.py``` as:
 ## Sample Results
 
 <img src="./images/results_1.png" width="800"/>
+
+# Method 2: Predicting Predicting Segmentation of Targets and Distractors
+
