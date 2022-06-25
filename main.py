@@ -185,7 +185,7 @@ def test_model(dataset, paths, device):
             graph_def.ParseFromString(file.read())
 
     predicted_maps = tf.import_graph_def(graph_def,
-                                         input_map={"input": input_images},#, "input_2": input_targets},
+                                         input_map={"input": input_images, "input_2": input_targets},
                                          return_elements=["output:0"])
 
     predicted_maps = tf.squeeze(predicted_maps, axis=0)
