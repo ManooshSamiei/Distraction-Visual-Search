@@ -173,7 +173,7 @@ def preprocess(data_dir, category, task_img_pair, human_scanpaths, data_list_ann
                 if count > 20:
                     continue
 
-                cv2.imwrite(os.path.join(data_dir, 'parsed_distractor', str(phase),
+                cv2.imwrite(os.path.join(data_dir, 'distractor_target_pair', str(phase),
                                          search_image.split('.')[0] + '_' + str(count) + '.jpg'), img_f)
                 # cv2_imshow(img_f)
                 poly_distractors.append(poly_list_dist)
@@ -234,7 +234,7 @@ def preprocess(data_dir, category, task_img_pair, human_scanpaths, data_list_ann
         # np.sum(distraction_scores[ind, :])
         for j, s in enumerate(distraction_scores[ind, :]):
 
-            if os.path.exists(os.path.join(data_dir, 'parsed_distractor', str(phase),
+            if os.path.exists(os.path.join(data_dir, 'distractor_target_pair', str(phase),
                                            search_image.split('.')[0] + '_' + str(j + 1) + '.jpg')):
                 print('distractor index: ', j)
                 print('len(poly_distractors): ', len(poly_distractors))
@@ -320,14 +320,14 @@ if __name__ == '__main__':
                         help='The target object category.', default='bottle')
     args = parser.parse_args()
 
-    if not os.path.exists(os.path.join(args.dldir, 'parsed_distractor')):
-        os.mkdir(os.path.join(args.dldir, 'parsed_distractor'))
-    if not os.path.exists(os.path.join(args.dldir, 'parsed_distractor', 'train')):
-        os.mkdir(os.path.join(args.dldir, 'parsed_distractor', 'train'))
-    if not os.path.exists(os.path.join(args.dldir, 'parsed_distractor', 'valid')):
-        os.mkdir(os.path.join(args.dldir, 'parsed_distractor', 'valid'))
-    if not os.path.exists(os.path.join(args.dldir, 'parsed_distractor', 'test')):
-        os.mkdir(os.path.join(args.dldir, 'parsed_distractor', 'test'))
+    if not os.path.exists(os.path.join(args.dldir, 'distractor_target_pair')):
+        os.mkdir(os.path.join(args.dldir, 'distractor_target_pair'))
+    if not os.path.exists(os.path.join(args.dldir, 'distractor_target_pair', 'train')):
+        os.mkdir(os.path.join(args.dldir, 'distractor_target_pair', 'train'))
+    if not os.path.exists(os.path.join(args.dldir, 'distractor_target_pair', 'valid')):
+        os.mkdir(os.path.join(args.dldir, 'distractor_target_pair', 'valid'))
+    if not os.path.exists(os.path.join(args.dldir, 'distractor_target_pair', 'test')):
+        os.mkdir(os.path.join(args.dldir, 'distractor_target_pair', 'test'))
     if not os.path.exists(os.path.join(args.dldir, 'distraction')):
         os.mkdir(os.path.join(args.dldir, 'distraction'))
     if not os.path.exists(os.path.join(args.dldir, 'distraction', 'train')):
