@@ -12,10 +12,13 @@ from skimage.io import imread, imshow, imread_collection, concatenate_images
 from skimage.transform import resize
 import pickle
 import numpy as np
+from keras import backend as K
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dldir', type=str, required=True, help='The directory to download the dataset.',
                     default='../')
+parser.add_argument('--classification', type=int, required=True, choices=[2,3],
+                        help='specifies whether to classify only to distractor, target or to low-distractor, high-distractor, target.', default=2)
 args = parser.parse_args()
 
 # Root directory of the project
@@ -66,7 +69,7 @@ class ShapesConfig(coco.CocoConfig):
     IMAGES_PER_GPU = 1
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 2  # background +  distractor, target
+    NUM_CLASSES = 1 + args.classification  # background +  distractor, target
 
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
@@ -96,10 +99,14 @@ class ShapesDataset(utils.Dataset):
     def load_shapes(self, mode):
         
         # Add classes
-        #self.add_class("shapes", 1, "non-distractor")
-        self.add_class("shapes", 1, "target")
-        self.add_class("shapes", 2, "distractor")
-        #self.add_class("shapes", 3, "high distractor")
+        if args.classification==2:
+            self.add_class("shapes", 1, "target")
+            self.add_class("shapes", 2, "distractor")
+
+        elif  args.classification==3:
+            self.add_class("shapes", 1, "target")
+            self.add_class("shapes", 2, "low-distractor")
+            self.add_class("shapes", 3, "high distractor")
         # Get train and test IDs
         self.train_ids = next(os.walk(TRAIN_PATH))[2]
         self.valid_ids = next(os.walk(VALID_PATH))[2]
@@ -159,14 +166,6 @@ class ShapesDataset(utils.Dataset):
         with open(path, "rb") as f_in:
           mask = pickle.load(f_in)
           number_of_masks = mask.shape[-1]
-        
-        #print(number_of_masks)
-        '''mask = np.zeros([320, 512, number_of_masks], dtype=np.uint8)
-        iterator = 0
-
-        for i in m[:,:]:
-          if 2 in i:
-            mask[:,:,0] = i'''
           
         occlusion = np.logical_not(mask[:, :, -1]).astype(np.uint8)
         for i in range(number_of_masks-2, -1, -1):
@@ -175,11 +174,6 @@ class ShapesDataset(utils.Dataset):
             
         # Map class names to class IDs.
         class_ids = np.asarray([np.max(mask[:,:,i]) for i in range(number_of_masks)])
-        mask[mask > 1] = 1
-        #class_ids = np.asarray([2 , 1, 0])
-        #class_ids = np.array([self.class_names.index(s[0]) for s in shapes])
-        #class_ids = np.ones((number_of_masks,), dtype=int)
-        #class_ids[0] = 2
         return mask, class_ids.astype(np.int32)
 
 def get_ax(rows=1, cols=1, size=8):

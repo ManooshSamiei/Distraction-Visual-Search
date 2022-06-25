@@ -255,7 +255,7 @@ def mask_seg(mask, pts, label, color):
     return new_mask
 
 
-def process_mask(data_dir, category, data, phase):
+def process_mask(data_dir, category, data, phase, classification):
     # dictionary for assigning a different color for each distraction mask
     color = {0: (0, 0, 20), 1: (0, 0, 40), 2: (0, 0, 80),
              3: (0, 0, 100), 4: (0, 0, 120), 5: (0, 0, 140),
@@ -291,19 +291,40 @@ def process_mask(data_dir, category, data, phase):
 
                 label = traj['label']
 
-                if label == 11:  # write target masks on the first channel
+                if int(classification)==2: ##2 classes
+                  if label == 11:  # write target masks on the first channel
+                      for seg in traj['segmentation']:
+                          poly = np.array(seg)
+                          mask[:, :, channel] = mask_seg(mask[:, :, channel].astype("uint8"), poly, 1, color)
+
+                      channel += 1
+
+                  if label > 0 and label < 11:
+
+                      for seg in traj['segmentation']:
+                          poly = np.array(seg)
+                          mask[:, :, channel] = mask_seg(mask[:, :, channel].astype("uint8"), poly, 2, color)
+                      channel += 1
+
+                elif int(classification)==3:  ##3 classes
+                  if label==11: #write target masks on the first channel
                     for seg in traj['segmentation']:
-                        poly = np.array(seg)
-                        mask[:, :, channel] = mask_seg(mask[:, :, channel].astype("uint8"), poly, 1, color)
+                        poly = np.array(seg)                   
+                        mask[:,:,channel]  = mask_seg(mask[:,:,channel].astype("uint8") , poly , 1 , color)
+                    channel +=1
 
-                    channel += 1
-
-                if label > 0 and label < 11:
-
+                  if label>0 and label<3:#write lowly distractors          
                     for seg in traj['segmentation']:
-                        poly = np.array(seg)
-                        mask[:, :, channel] = mask_seg(mask[:, :, channel].astype("uint8"), poly, 2, color)
-                    channel += 1
+                        poly = np.array(seg)                   
+                        mask[:,:,channel]  = mask_seg(mask[:,:,channel].astype("uint8") , poly , 2 , color)
+                    channel +=1
+
+                  
+                  elif label>=3 and label<11: #write highly distractors
+                    for seg in traj['segmentation']:
+                        poly = np.array(seg)                   
+                        mask[:,:,channel]  = mask_seg(mask[:,:,channel].astype("uint8") , poly , 3 , color)
+                    channel +=1    
 
         # mask = to_categorical(mask, num_classes=3)
 
@@ -318,6 +339,8 @@ if __name__ == '__main__':
                         default='../')
     parser.add_argument('--category', type=str, required=True, choices=['bottle', 'bowl', 'car'],
                         help='The target object category.', default='bottle')
+    parser.add_argument('--classification', type=int, required=True, choices=[2,3],
+                        help='specifies whether to classify only to distractor, target or to low-distractor, high-distractor, target.', default=2)
     args = parser.parse_args()
 
     if not os.path.exists(os.path.join(args.dldir, 'distractor_target_pair')):
@@ -430,6 +453,6 @@ if __name__ == '__main__':
                            'test')
     # with open(os.path.join(args.dldir, 'testing.txt'), 'w') as outfile:
     #     json.dump(data_test, outfile)
-    process_mask(args.dldir, args.category, data_train, 'train')
-    process_mask(args.dldir, args.category, data_valid, 'valid')
-    process_mask(args.dldir, args.category, data_test, 'test')
+    process_mask(args.dldir, args.category, data_train, 'train', args.classification)
+    process_mask(args.dldir, args.category, data_valid, 'valid', args.classification)
+    process_mask(args.dldir, args.category, data_test, 'test', args.classification)
