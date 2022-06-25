@@ -1,6 +1,6 @@
 DOWNLOAD_DIR="/home/manoosh.samiei/VisualSearch/"
 AVAILABLE_GPU="0"
-CATEGORY='bottle'
+CATEGORY='bottle'#'car'#'bowl'#
 
 #download dataset
 docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(id -g) -v $(pwd):/workspace \
