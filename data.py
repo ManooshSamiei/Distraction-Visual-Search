@@ -32,6 +32,7 @@ class COCOSEARCH:
         
         self._stimuli_size = config.DIMS["image_size_cocosearch"]
         self._target_size = config.DIMS["image_target_size_cocosearch"]
+        self.phase = 'train'
 
         self._dir_stimuli_train = data_path + "cocosearch/stimuli/train"
         self._dir_stimuli_valid = data_path + "cocosearch/stimuli/valid"
@@ -55,7 +56,7 @@ class COCOSEARCH:
         _check_consistency(zip(train_list_x, train_list_y, train_list_z), self.n_train)
 
         train_set = _fetch_dataset((train_list_x, train_list_y, train_list_z),
-                                    self._stimuli_size, self._target_size, True)
+                                    self._stimuli_size, self._target_size, self.phase, True)
 
         valid_list_x = _get_file_list(self._dir_stimuli_valid)
         valid_list_y = _get_file_list(self._dir_saliency_valid)
@@ -64,7 +65,7 @@ class COCOSEARCH:
         _check_consistency(zip(valid_list_x, valid_list_y, valid_list_z), self.n_valid)
 
         valid_set = _fetch_dataset((valid_list_x, valid_list_y, valid_list_z),
-                                    self._stimuli_size, self._target_size, False)
+                                    self._stimuli_size, self._target_size, self.phase, False)
 
         return (train_set, valid_set)
 
@@ -83,26 +84,26 @@ class TEST:
     def __init__(self, dataset, data_path):
         
         type(self).n_test = len(next(os.walk(data_path + "cocosearch/stimuli/test"))[2])
-
+        #type(self).n_test = len(next(os.walk(data_path + "cocosearch/stimuli/test_store"))[2])
         self._stimuli_size = config.DIMS["image_size_cocosearch"]
         self._target_size = config.DIMS["image_target_size_cocosearch"]
+        self.phase = 'test'
 
         targ_ind_test = str(random.randint(0, 4))
 
         self._dir_stimuli_test = data_path + "cocosearch/stimuli/test"
         self._dir_target_test = data_path + "cocosearch/target_"+ targ_ind_test + "/test"
-        self._dir_saliency_test = data_path + "cocosearch/saliencymap/test"
- 
+        #self._dir_stimuli_test = data_path + "cocosearch/stimuli/test_store"
+        #self._dir_target_test = data_path + "cocosearch/stimuli/target_store"
 
     def load_data(self):
 
         test_list_x = _get_file_list(self._dir_stimuli_test)
-        test_list_y = _get_file_list(self._dir_saliency_test)
-        test_list_z = _get_file_list(self._dir_target_test)
+        test_list_y = _get_file_list(self._dir_target_test)
 
-        _check_consistency(zip(test_list_x, test_list_y, test_list_z), self.n_test)
+        _check_consistency(zip(test_list_x, test_list_y), self.n_test)
 
-        test_set = _fetch_dataset((test_list_x, test_list_y, test_list_z), self._stimuli_size, self._target_size,
+        test_set = _fetch_dataset((test_list_x, test_list_y), self._stimuli_size, self._target_size, self.phase,
                                   False, online=True)
 
         return test_set
@@ -180,7 +181,7 @@ def postprocess_saliency_map(saliency_map, target_size):
     return saliency_map_jpg, saliency_map_np 
 
 
-def _fetch_dataset(files, stimuli_size, target_size, shuffle, online=False):
+def _fetch_dataset(files, stimuli_size, target_size, phase, shuffle, online=False):
 
     """Here the list of file directories is shuffled (only when training),
        loaded, batched, and prefetched to ensure high GPU utilization.
@@ -193,6 +194,7 @@ def _fetch_dataset(files, stimuli_size, target_size, shuffle, online=False):
         shuffle (bool): Determines whether the dataset will be shuffled or not.
         online (bool, optional): Flag that decides whether the batch size must
                                  be 1 or can take any value. Defaults to False.
+        phase (str): train/test determines whether the dataset belongs to testing or training.
     Returns:
         object: A dataset object that contains the batched and prefetched data
                 instances along with their shapes and file paths.
@@ -203,7 +205,7 @@ def _fetch_dataset(files, stimuli_size, target_size, shuffle, online=False):
     if shuffle:
         dataset = dataset.shuffle(len(files[0]))
 
-    dataset = dataset.map(lambda *files: _parse_function(files, stimuli_size, target_size),
+    dataset = dataset.map(lambda *files: _parse_function(files, stimuli_size, target_size, phase),
                           num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
     batch_size = 1 if online else config.PARAMS["batch_size"]
@@ -214,7 +216,7 @@ def _fetch_dataset(files, stimuli_size, target_size, shuffle, online=False):
     return dataset
 
 
-def _parse_function(files, stimuli_size, target_size):
+def _parse_function(files, stimuli_size, target_size, phase):
     """This function reads image data dependent on the image type and
        whether it constitutes a stimulus or saliency map. All instances
        are then reshaped and padded to yield the target dimensionality.
@@ -244,12 +246,18 @@ def _parse_function(files, stimuli_size, target_size):
                                                     channels=channels))
         original_size = tf.shape(image)[:2]
 
-        if count == 2: #target images
-            image = _resize_image(image, target_size)
-        
-        elif count == 0 or count == 1: #saliency maps and stimuli
-
-            image = _resize_image(image, stimuli_size)
+        if phase=='train':
+            if count == 2: #target images
+                image = _resize_image(image, target_size)
+            
+            elif count == 0 or count == 1: #saliency maps and stimuli
+                image = _resize_image(image, stimuli_size)
+        if phase=='test':
+            if count == 1: #target images
+                image = _resize_image(image, target_size)
+            
+            elif count == 0: #stimuli
+                image = _resize_image(image, stimuli_size)            
 
         image_list.append(image)
 
