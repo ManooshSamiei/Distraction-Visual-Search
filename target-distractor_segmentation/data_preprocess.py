@@ -293,18 +293,16 @@ def process_mask(data_dir, category, data, phase, classification):
 
                 if int(classification)==2: ##2 classes
                   if label == 11:  # write target masks on the first channel
-                      for seg in traj['segmentation']:
-                          poly = np.array(seg)
-                          mask[:, :, channel] = mask_seg(mask[:, :, channel].astype("uint8"), poly, 1, color)
-
-                      channel += 1
+                    for seg in traj['segmentation']:
+                        poly = np.array(seg)
+                        mask[:, :, channel] = mask_seg(mask[:, :, channel].astype("uint8"), poly, 1, color)
+                    channel += 1
 
                   if label > 0 and label < 11:
-
-                      for seg in traj['segmentation']:
-                          poly = np.array(seg)
-                          mask[:, :, channel] = mask_seg(mask[:, :, channel].astype("uint8"), poly, 2, color)
-                      channel += 1
+                    for seg in traj['segmentation']:
+                        poly = np.array(seg)
+                        mask[:, :, channel] = mask_seg(mask[:, :, channel].astype("uint8"), poly, 2, color)
+                    channel += 1
 
                 elif int(classification)==3:  ##3 classes
                   if label==11: #write target masks on the first channel
