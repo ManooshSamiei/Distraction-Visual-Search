@@ -174,6 +174,7 @@ class ShapesDataset(utils.Dataset):
             
         # Map class names to class IDs.
         class_ids = np.asarray([np.max(mask[:,:,i]) for i in range(number_of_masks)])
+        mask[mask > 1] = 1
         return mask, class_ids.astype(np.int32)
 
 def get_ax(rows=1, cols=1, size=8):
