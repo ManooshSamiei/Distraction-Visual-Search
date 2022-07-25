@@ -27,7 +27,7 @@ def PolyArea(x, y):
     return 0.5 * np.abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1)))
 
 
-def preprocess(data_dir, category, task_img_pair, human_scanpaths, data_list_ann, phase):
+def preprocess(data_dir, category, task_img_pair, human_scanpaths, data_list_ann):
     # We set maximum number of distractors to 20 and compute a distraction score for each distractor
     distraction_scores = np.zeros((len(task_img_pair), 20))
 
@@ -173,7 +173,7 @@ def preprocess(data_dir, category, task_img_pair, human_scanpaths, data_list_ann
                 if count > 20:
                     continue
 
-                cv2.imwrite(os.path.join(data_dir, 'distractor_target_pair', str(phase),
+                cv2.imwrite(os.path.join(data_dir, 'distractor_target_pair', category, 'image',
                                          search_image.split('.')[0] + '_' + str(count) + '.jpg'), img_f)
                 # cv2_imshow(img_f)
                 poly_distractors.append(poly_list_dist)
@@ -234,7 +234,7 @@ def preprocess(data_dir, category, task_img_pair, human_scanpaths, data_list_ann
         # np.sum(distraction_scores[ind, :])
         for j, s in enumerate(distraction_scores[ind, :]):
 
-            if os.path.exists(os.path.join(data_dir, 'distractor_target_pair', str(phase),
+            if os.path.exists(os.path.join(data_dir, 'distractor_target_pair', category, 'image',
                                            search_image.split('.')[0] + '_' + str(j + 1) + '.jpg')):
                 print('distractor index: ', j)
                 print('len(poly_distractors): ', len(poly_distractors))
@@ -255,7 +255,7 @@ def mask_seg(mask, pts, label, color):
     return new_mask
 
 
-def process_mask(data_dir, category, data, phase, classification):
+def process_mask(data_dir, category, data, classification):
     # dictionary for assigning a different color for each distraction mask
     color = {0: (0, 0, 20), 1: (0, 0, 40), 2: (0, 0, 80),
              3: (0, 0, 100), 4: (0, 0, 120), 5: (0, 0, 140),
@@ -272,7 +272,7 @@ def process_mask(data_dir, category, data, phase, classification):
     for im in task_img_pair:
         image_path = os.path.join(data_dir, 'images', category, im.split('_')[1])
         img = cv2.resize(cv2.imread(image_path), (adjusted_width, adjusted_height), interpolation=cv2.INTER_AREA)
-        cv2.imwrite(os.path.join(data_dir, 'distraction', phase, im.split('.')[0] + '.png'), img)
+        cv2.imwrite(os.path.join(data_dir, 'distraction',  category, 'image' , im.split('.')[0] + '.png'), img)
 
         instances = 0
 
@@ -326,7 +326,7 @@ def process_mask(data_dir, category, data, phase, classification):
 
         # mask = to_categorical(mask, num_classes=3)
 
-        with open(os.path.join(data_dir, 'distraction', 'mask', im.split('.')[0] + '.pickle'), "wb") as f_out:
+        with open(os.path.join(data_dir, 'distraction',  category, 'mask', im.split('.')[0] + '.pickle'), "wb") as f_out:
             pickle.dump(mask, f_out)
 
 
@@ -340,25 +340,20 @@ if __name__ == '__main__':
     parser.add_argument('--classification', type=int, required=True, choices=[2,3],
                         help='specifies whether to classify only to distractor, target or to low-distractor, high-distractor, target.', default=2)
     args = parser.parse_args()
-
     if not os.path.exists(os.path.join(args.dldir, 'distractor_target_pair')):
         os.mkdir(os.path.join(args.dldir, 'distractor_target_pair'))
-    if not os.path.exists(os.path.join(args.dldir, 'distractor_target_pair', 'train')):
-        os.mkdir(os.path.join(args.dldir, 'distractor_target_pair', 'train'))
-    if not os.path.exists(os.path.join(args.dldir, 'distractor_target_pair', 'valid')):
-        os.mkdir(os.path.join(args.dldir, 'distractor_target_pair', 'valid'))
-    if not os.path.exists(os.path.join(args.dldir, 'distractor_target_pair', 'test')):
-        os.mkdir(os.path.join(args.dldir, 'distractor_target_pair', 'test'))
+    if not os.path.exists(os.path.join(args.dldir, 'distractor_target_pair', args.category)):
+        os.mkdir(os.path.join(args.dldir, 'distractor_target_pair', args.category))
+    if not os.path.exists(os.path.join(args.dldir, 'distractor_target_pair', args.category, 'image')):
+        os.mkdir(os.path.join(args.dldir, 'distractor_target_pair', args.category, 'image'))
     if not os.path.exists(os.path.join(args.dldir, 'distraction')):
         os.mkdir(os.path.join(args.dldir, 'distraction'))
-    if not os.path.exists(os.path.join(args.dldir, 'distraction', 'train')):
-        os.mkdir(os.path.join(args.dldir, 'distraction', 'train'))
-    if not os.path.exists(os.path.join(args.dldir, 'distraction', 'valid')):
-        os.mkdir(os.path.join(args.dldir, 'distraction', 'valid'))
-    if not os.path.exists(os.path.join(args.dldir, 'distraction', 'test')):
-        os.mkdir(os.path.join(args.dldir, 'distraction', 'test'))
-    if not os.path.exists(os.path.join(args.dldir, 'distraction', 'mask')):
-        os.mkdir(os.path.join(args.dldir, 'distraction', 'mask'))
+    if not os.path.exists(os.path.join(args.dldir, 'distraction', args.category)):
+        os.mkdir(os.path.join(args.dldir, 'distraction', args.category))
+    if not os.path.exists(os.path.join(args.dldir, 'distraction', args.category, 'image')):
+        os.mkdir(os.path.join(args.dldir, 'distraction', args.category, 'image'))
+    if not os.path.exists(os.path.join(args.dldir, 'distraction', args.category, 'mask')):
+        os.mkdir(os.path.join(args.dldir, 'distraction', args.category, 'mask'))
 
     with open(os.path.join(args.dldir,
                            'coco_search18_fixations_TP_train_split1.json')) as json_file:
@@ -370,24 +365,10 @@ if __name__ == '__main__':
 
     train_task_img_pair = []
 
-    for search_image in human_scanpaths_train:
+    for search_image in human_scanpaths_train + human_scanpaths_valid:
         if search_image['task'] == args.category:
             train_task_img_pair.append(args.category + '_' + search_image['name'])
     train_task_img_pair = np.unique(np.asarray(train_task_img_pair))
-
-    # separate test set from the training set.
-    test_task_img_pair = random.sample(list(train_task_img_pair), 17)
-
-    # remove test set from the training set
-    train_task_img_pair = [x for x in train_task_img_pair if x not in test_task_img_pair]
-    train_task_img_pair = np.unique(np.asarray(train_task_img_pair))
-
-    valid_task_img_pair = []
-
-    for search_image in human_scanpaths_valid:
-        if search_image['task'] == args.category:
-            valid_task_img_pair.append(args.category + '_' + search_image['name'])
-    valid_task_img_pair = np.unique(np.asarray(valid_task_img_pair))
 
     with open(os.path.join(args.dldir, args.category + '_segmentation.json')) as json_file:
         annotations = json.load(json_file)
@@ -400,14 +381,6 @@ if __name__ == '__main__':
     data_list = np.asarray(data_list)
     data_list_ann = []
 
-    test_list = []
-    for traj in annotations['images']:
-        if traj["file_name"] in test_task_img_pair:
-            test_list.append((traj["file_name"], traj["id"], traj['width'], traj['height']))
-
-    test_list = np.asarray(test_list)
-    test_list_ann = []
-
     for traj in annotations['annotations']:
         if str(traj["image_id"]) in data_list[:, 1]:
             d = data_list[np.where(data_list[:, 1] == str(traj["image_id"]))][0]
@@ -415,42 +388,8 @@ if __name__ == '__main__':
                                   traj['category_id']])  # [filename, segmentation, width, height, category]
     data_list_ann = np.asarray(data_list_ann)
 
-    for traj in annotations['annotations']:
-        if str(traj["image_id"]) in test_list[:, 1]:
-            d = test_list[np.where(test_list[:, 1] == str(traj["image_id"]))][0]
-            test_list_ann.append([d[0], traj['segmentation'], d[2], d[3],
-                                  traj['category_id']])  # [filename, segmentation, width, height, category]
-    test_list_ann = np.asarray(test_list_ann)
-
-    valid_list = []
-    for traj in annotations['images']:
-        if traj["file_name"] in valid_task_img_pair:
-            valid_list.append((traj["file_name"], traj["id"], traj['width'], traj['height']))
-
-    valid_list = np.asarray(valid_list)
-    valid_list_ann = []
-
-    for traj in annotations['annotations']:
-        if str(traj["image_id"]) in valid_list[:, 1]:
-            d = valid_list[np.where(valid_list[:, 1] == str(traj["image_id"]))][0]
-            valid_list_ann.append([d[0], traj['segmentation'], d[2], d[3],
-                                   traj['category_id']])  # [filename, segmentation, width, height, category]
-    valid_list_ann = np.asarray(valid_list_ann)
-
-    data_train = preprocess(args.dldir, args.category, train_task_img_pair, human_scanpaths_train, data_list_ann,
-                            'train')
+    data_train = preprocess(args.dldir, args.category, train_task_img_pair, human_scanpaths_train, data_list_ann)
     # with open(os.path.join(args.dldir, 'training.txt'), 'w') as outfile:
     #     json.dump(data_train, outfile)
 
-    data_valid = preprocess(args.dldir, args.category, valid_task_img_pair, human_scanpaths_valid, valid_list_ann,
-                            'valid')
-    # with open(os.path.join(args.dldir, 'validating.txt'), 'w') as outfile:
-    #     json.dump(data_valid, outfile)
-
-    data_test = preprocess(args.dldir, args.category, test_task_img_pair, human_scanpaths_train, test_list_ann,
-                           'test')
-    # with open(os.path.join(args.dldir, 'testing.txt'), 'w') as outfile:
-    #     json.dump(data_test, outfile)
-    process_mask(args.dldir, args.category, data_train, 'train', args.classification)
-    process_mask(args.dldir, args.category, data_valid, 'valid', args.classification)
-    process_mask(args.dldir, args.category, data_test, 'test', args.classification)
+    process_mask(args.dldir, args.category, data_train, args.classification)
