@@ -510,7 +510,7 @@ if __name__ == '__main__':
                     custom_callbacks=callbacks_list,
                     augmentation=augmentation)
 
-        epoch_count +=10
+        epoch_count +=5
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE/10,
