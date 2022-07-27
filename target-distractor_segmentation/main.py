@@ -80,13 +80,13 @@ sys.path.append(os.path.join(ROOT_DIR, "samples/coco/"))  # To find local versio
 # Import COCO config
 import coco
 
-class ShapesConfig(coco.CocoConfig):
+class VisAttentionConfig(coco.CocoConfig):
     """Configuration for training on the dataset.
     Derives from the base Config class and overrides values specific
     to the dataset.
     """
     # Give the configuration a recognizable name
-    NAME = "shapes"
+    NAME = "VisualAttention"
 
     # Train on 1 GPU and 1 images per GPU. We can put multiple images on each
     # GPU. Batch size is (GPUs * images/GPU).
@@ -121,11 +121,11 @@ class ShapesConfig(coco.CocoConfig):
     # set validation steps 
     VALIDATION_STEPS = round(len(next(os.walk(IMAGE_DIR))[2])*1/5)
 
-class InferenceConfig(ShapesConfig):
+class InferenceConfig(VisAttentionConfig):
     GPU_COUNT = 1
     IMAGES_PER_GPU = 1
 
-class ShapesDataset(utils.Dataset):
+class VisAttentionDataset(utils.Dataset):
     
 ############################################################
 #  K-fold cross validation
@@ -134,13 +134,13 @@ class ShapesDataset(utils.Dataset):
         
         # Add classes
         if args.classification==2:
-            self.add_class("shapes", 1, "target")
-            self.add_class("shapes", 2, "distractor")
+            self.add_class("VisualAttention", 1, "target")
+            self.add_class("VisualAttention", 2, "distractor")
 
         elif  args.classification==3:
-            self.add_class("shapes", 1, "target")
-            self.add_class("shapes", 2, "low-distractor")
-            self.add_class("shapes", 3, "high distractor")
+            self.add_class("VisualAttention", 1, "target")
+            self.add_class("VisualAttention", 2, "low-distractor")
+            self.add_class("VisualAttention", 3, "high distractor")
 
         assert mode in ["train", "val"]
         # Get train and test IDs
@@ -154,11 +154,11 @@ class ShapesDataset(utils.Dataset):
             if mode == "train" and fold == i:
                 for index in train:
                     #print(self.train_ids[index])
-                    self.add_image("shapes", image_id=self.train_ids[index], path=IMAGE_DIR)
+                    self.add_image("VisualAttention", image_id=self.train_ids[index], path=IMAGE_DIR)
 
             elif mode == "val" and fold == i:
                 for index in val:
-                    self.add_image("shapes", image_id=self.train_ids[index], path=IMAGE_DIR) 
+                    self.add_image("VisualAttention", image_id=self.train_ids[index], path=IMAGE_DIR) 
   
     def load_image(self, image_id):
         
@@ -173,15 +173,15 @@ class ShapesDataset(utils.Dataset):
         return img
 
     def image_reference(self, image_id):
-        """Return the shapes data of the image."""
+        """Return the data of the image."""
         info = self.image_info[image_id]
-        if info["source"] == "shapes":
-            return info["shapes"]
+        if info["source"] == "VisualAttention":
+            return info["VisualAttention"]
         else:
             super(self.__class__).image_reference(self, image_id)
 
     def load_mask(self, image_id):
-        """Generate instance masks for shapes of the given image ID.
+        """Generate instance masks for types of the given image ID.
         """
         
         info = self.image_info[image_id]
@@ -411,7 +411,7 @@ class MAP_MAR_F1Score_Callback(Callback):
 
 if __name__ == '__main__':
 
-    config = ShapesConfig()
+    config = VisAttentionConfig()
     config.display()
 
     #list_iou_thresholds = np.arange(0.5, 1, 0.05)
@@ -441,12 +441,12 @@ if __name__ == '__main__':
         epoch_count = 0
         print("Training fold", i)
         # Training dataset.
-        dataset_train = ShapesDataset()
+        dataset_train = VisAttentionDataset()
         dataset_train.load_custom_K_fold("train", i)
         dataset_train.prepare()
 
         # Validation dataset
-        dataset_val = ShapesDataset()
+        dataset_val = VisAttentionDataset()
         dataset_val.load_custom_K_fold("val", i)
         dataset_val.prepare()
 
