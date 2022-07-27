@@ -8,7 +8,7 @@ DOWNLOAD_DIR="/home/manoosh.samiei/VisualSearch/"
 
 docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(id -g) -v $(pwd):/workspace \
     -v /mnt:/mnt -p 7967:7967 tf1.15-conda:latest \
-    python /home/manoosh.samiei/VisualSearch/Predicting-Salience-During-Visual-Search/dataset_download.py \
+    python /home/manoosh.samiei/VisualSearch/Distraction-Visual-Search/dataset_download.py \
     --dldir=$DOWNLOAD_DIR 
 
 
@@ -18,7 +18,7 @@ SIGMA=11
 
 docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(id -g) -v $(pwd):/workspace \
     -v /mnt:/mnt -p 7967:7967 tf1.15-conda:latest \
-    python /home/manoosh.samiei/VisualSearch/Predicting-Salience-During-Visual-Search/data_preprocessing.py \
+    python /home/manoosh.samiei/VisualSearch/Distraction-Visual-Search/data_preprocessing.py \
     --dldir=$DOWNLOAD_DIR \
     --sigma=$SIGMA 
 
@@ -29,7 +29,7 @@ THRESHOLD=30
 
 docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(id -g) -v $(pwd):/workspace \
     -v /mnt:/mnt -p 7967:7967 tf1.15-conda:latest \
-    python /home/manoosh.samiei/VisualSearch/Predicting-Salience-During-Visual-Search/main.py \
+    python /home/manoosh.samiei/VisualSearch/Distraction-Visual-Search/main.py \
         --path=$DOWNLOAD_DIR \
         --phase=$PHASE \
         --threshold=$THRESHOLD
@@ -40,7 +40,7 @@ PHASE="test"
 
 docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(id -g) -v $(pwd):/workspace \
     -v /mnt:/mnt -p 7967:7967 tf1.15-conda:latest \
-    python /home/manoosh.samiei/VisualSearch/Predicting-Salience-During-Visual-Search/main.py \
+    python /home/manoosh.samiei/VisualSearch/Distraction-Visual-Search/main.py \
         --path=$DOWNLOAD_DIR \
         --phase=$PHASE \
         --threshold=$THRESHOLD
@@ -52,7 +52,7 @@ CSV_DIR=${DOWNLOAD_DIR}"results/"
 
 docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(id -g) -v $(pwd):/workspace \
     -v /mnt:/mnt -p 7967:7967 tf1.15-conda:latest \
-    python /home/manoosh.samiei/VisualSearch/Predicting-Salience-During-Visual-Search/compute_saliency_metrics.py \
+    python /home/manoosh.samiei/VisualSearch/Distraction-Visual-Search/compute_saliency_metrics.py \
         --path=$DOWNLOAD_DIR  \
         --use-pysaliency=$PYSAL \
         --csv-path=$CSV_DIR
