@@ -101,6 +101,7 @@ class VisAttentionConfig(coco.CocoConfig):
     # You can also provide a callable that should have the signature
     # of model.resnet_graph. If you do so, you need to supply a callable
     # to COMPUTE_BACKBONE_SHAPE as well
+    #BACKBONE = "resnet50"
     BACKBONE = "resnet101"
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
@@ -419,7 +420,6 @@ if __name__ == '__main__':
     pred_tot = np.array([])
     mAPs = []
     mARs = []
-    mAPs_50 = []
     recall = []
     precision = []
   
@@ -450,7 +450,7 @@ if __name__ == '__main__':
         dataset_val.load_custom_K_fold("val", i)
         dataset_val.prepare()
 
-        augmentation = imgaug.augmenters.Sometimes(0.5, [
+        augmentation = imgaug.augmenters.Sometimes(1, [
                         imgaug.augmenters.Fliplr(0.5),
                         imgaug.augmenters.Flipud(0.5)])
 
@@ -460,7 +460,6 @@ if __name__ == '__main__':
         #     image = dataset_train.load_image(image_id)
         #     mask, class_ids = dataset_train.load_mask(image_id )
         #     visualize.display_top_masks(image, mask, class_ids, dataset_train.class_names)
-
 
         # Which weights to start with?
         init_with = "coco"  # imagenet, coco, or last
@@ -487,7 +486,7 @@ if __name__ == '__main__':
         # layers. You can also pass a regular expression to select
         # which layers to train by name pattern.
         model_path = os.path.join(args.outdir, args.category, 'checkpoints', "unet_best_weight_fold_" + str(i) + ".hdf5")
-        #checkpoint = keras.callbacks.ModelCheckpoint(model_path, save_weights_only=True, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+        # checkpoint = keras.callbacks.ModelCheckpoint(model_path, save_weights_only=True, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
         # MAP_MAR_F1Score_Callback needs a batch size of 1 
         checkpoint = keras.callbacks.ModelCheckpoint(model_path, save_weights_only=True, monitor='val_f1_score', verbose=1, save_best_only=True, mode='max')
         callbacks_list = [ mAP_callback, checkpoint, tensorboard_callback]#
@@ -495,25 +494,25 @@ if __name__ == '__main__':
         epoch_count +=10
         print("Training network heads")
         model.train(dataset_train, dataset_val,
-                    learning_rate=config.LEARNING_RATE *2,
+                    learning_rate=config.LEARNING_RATE*2,
                     epochs= epoch_count,
                     layers='heads',
-                    custom_callbacks=callbacks_list)
-                    #augmentation=augmentation)
-
-        epoch_count +=5
-        print("Fine tune Resnet stage 4 and up")
-        model.train(dataset_train, dataset_val,
-                    learning_rate=config.LEARNING_RATE,
-                    epochs= epoch_count,
-                    layers='4+',
                     custom_callbacks=callbacks_list,
                     augmentation=augmentation)
+
+        # epoch_count +=5
+        # print("Fine tune Resnet stage 4 and up")
+        # model.train(dataset_train, dataset_val,
+        #             learning_rate=config.LEARNING_RATE,
+        #             epochs= epoch_count,
+        #             layers='4+',
+        #             custom_callbacks=callbacks_list,
+        #             augmentation=augmentation)
 
         epoch_count +=5
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
-                    learning_rate=config.LEARNING_RATE/10,
+                    learning_rate=config.LEARNING_RATE,
                     epochs= epoch_count,
                     layers='all',
                     custom_callbacks=callbacks_list,
@@ -573,7 +572,7 @@ if __name__ == '__main__':
                 display_instance(results_save_dir, original_image, r['rois'][ind], mask_input , r['class_ids'][ind], 
                                             dataset_val.class_names, r['scores'][ind], figsize=(8, 8))
 
-            gt, pred = gt_pred_lists(gt_class_id, gt_bbox, r["class_ids"], r["rois"])
+            gt, pred = gt_pred_lists(gt_class_id, gt_bbox, r["class_ids"], r["rois"],r['scores'])
             gt_tot = np.append(gt_tot, gt)
             #print(gt_tot)
             pred_tot = np.append(pred_tot, pred)

@@ -54,9 +54,8 @@ def get_iou(a, b, epsilon=1e-5):
     iou = area_overlap / (area_combined+epsilon)
     return iou
 
-
 #function 2 to be added to your utils.py
-def gt_pred_lists(gt_class_ids, gt_bboxes, pred_class_ids, pred_bboxes, iou_tresh = 0.5):
+def gt_pred_lists(gt_class_ids, gt_bboxes, pred_class_ids, pred_bboxes, pred_scores, iou_tresh = 0.5):
 
     """ 
         Given a list of ground truth and predicted classes and their boxes, 
@@ -89,31 +88,21 @@ def gt_pred_lists(gt_class_ids, gt_bboxes, pred_class_ids, pred_bboxes, iou_tres
                 #change the state of the gt and predicted class when an overlapping is found
                 gt_class_ids_['state'][i] = 1
                 pred_class_ids_['state'][j] = 1
-                #gt.append(gt_class)
-                #pred.append(pred_class)
-                
-                #chack if the overlapping objects are from the same class
-                if (gt_class == pred_class):
-                	gt.append(gt_class)
-                	pred.append(pred_class)
-                #if the overlapping objects are not from the same class 
-                else : 
-                    gt.append(gt_class)
-                    pred.append(pred_class)
+                gt.append(gt_class)
+                pred.append(pred_class)
                 
     #look for objects that are not predicted (gt objects that dont exists in pred objects)
     for i, gt_class in enumerate(gt_class_ids_["gt_class_ids"]):
         if gt_class_ids_['state'][i] == 0:
             gt.append(gt_class)
-            pred.append(0)
+            pred.append(0)    
             #match_id += 1
     #look for objects that are mispredicted (pred objects that dont exists in gt objects)
     for j, pred_class in enumerate(pred_class_ids_["pred_class_ids"]):
         if pred_class_ids_['state'][j] == 0:
             gt.append(0)
-            pred.append(pred_class)
+            pred.append(pred_class)          
     return gt, pred
-
 
 
 #########  Print confusion matrix for the whole dataset and return tp,fp and fn ##########
