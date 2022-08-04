@@ -1,7 +1,9 @@
 DOWNLOAD_DIR="/home/manoosh.samiei/VisualSearch/"
 AVAILABLE_GPU="0"
 CATEGORY='bottle'#'car'#'bowl'#
-CLASS=3
+CLASS=2
+OUTDIR='/home/manoosh.samiei/VisualSearch/segmentation_results'
+
 #download dataset
 docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(id -g) -v $(pwd):/workspace \
     -v /mnt:/mnt -v /media:/media -v /nas:/nas -p 7167:7167 tf1.15-conda:latests \
@@ -23,4 +25,6 @@ docker run --gpus all -e CUDA_VISIBLE_DEVICES=$AVAILABLE_GPU --rm -u $(id -u):$(
     -v /mnt:/mnt -v /media:/media -v /nas:/nas -p 7197:7197 tf1.15-conda:latest \
     python /home/manoosh.samiei/VisualSearch/Distraction-Visual-Search/target-distractor_segmentation/main.py \
     --dldir=$DOWNLOAD_DIR \
-    --classification=$CLASS 
+    --classification=$CLASS  \
+    --category=$CATEGORY \
+    --outdir=$OUTDIR
