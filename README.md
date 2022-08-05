@@ -14,7 +14,8 @@ Original repository forked from the implementation of MSI-Net saliency network [
 
 ## Citation
 
-```
+If you use the code of this repository, please do not forget to give us a star :innocent: and cite the following:
+
 @article{Samiei2021visualsearch,
   title={Predicting visual attention and distraction during visual search using convolutional neural networks},
     journal = {Journal of Vision},
