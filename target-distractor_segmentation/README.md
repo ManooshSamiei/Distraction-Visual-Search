@@ -5,8 +5,10 @@
 
 
 ## Mask-RCNN Architecture 
-[Image source](https://speakerdeck.com/nptdat/mask-rcnn-for-instance-segmentation) 
+
 <img src="../images/MASKRCNN.png" width="500"/>
+
+[Image source](https://speakerdeck.com/nptdat/mask-rcnn-for-instance-segmentation) 
 
 ## Requirements
 
