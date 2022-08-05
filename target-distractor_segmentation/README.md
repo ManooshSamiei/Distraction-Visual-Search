@@ -39,7 +39,7 @@ Run ```run.sh``` to run all steps including:
 
 1- downloading the dataset <br/>
 2- data preprocessing <br/>
-3- training, testing, saving inference results and computing metrics. <br/> 
+3- training, testing, saving inference results and computed metrics. <br/> 
 
 You need to change the arguments related to each script accordingly. 
 In the following, we explain each step in details. 
