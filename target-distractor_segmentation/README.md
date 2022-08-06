@@ -3,7 +3,6 @@
 
 **_summary note:_** *Our second approach is object-based and predicts the segmentation of distractor and target objects during visual search. Distractors are all objects other than the target that the observers fixate on, during their search. This method uses a Mask-RCNN segmentation network pre-trained on Ms COCO and fine-tuned on COCO-Search18 dataset. Although the images of COCO-Search18 are taken from COCO dataset that provides segmentation annotations, these annotations often miss the targets and distractors fixated by observers in COCO-Search18. Therefore, we annotated images of COCO-Search18 for three target categories: bottle, bowl, and car. For each category, we train and evaluate a separate model. Considering the difficulty of the problem, we obtained relatively good average scores over the three categories (F1-score=0.64, MAP<sub>0.5</sub>=0.57, MAR<sub>0.5</sub>=0.73).*
 
-
 ## Mask-RCNN Architecture 
 
 <img src="../images/MASKRCNN.png" width="500"/>
@@ -97,4 +96,4 @@ To train and evaluate the model on the dataset, run ```main.py``` as below:
 
 ## Sample Results
 
-<!-- <img src="./images/results_1.png" width="800"/> -->
+<img src="./images/results_2.png" width="800"/>
