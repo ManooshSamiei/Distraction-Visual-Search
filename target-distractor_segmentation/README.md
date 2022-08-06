@@ -96,4 +96,4 @@ To train and evaluate the model on the dataset, run ```main.py``` as below:
 
 ## Sample Results
 
-<img src="./images/results_2.png" width="800"/>
+<img src="../images/results_2.png" width="800"/>
