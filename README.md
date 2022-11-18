@@ -19,18 +19,15 @@ Original repository forked from the implementation of MSI-Net saliency network [
 If you use the code of this repository, please do not forget to give us a star :innocent: and cite the following:
 
 ```
-@article{Samiei2021visualsearch,
-  title={Predicting visual attention and distraction during visual search using convolutional neural networks},
-    journal = {Journal of Vision},
-    volume = {},
-    number = {},
-    pages = {},
-    year = {},
-    month = {},
-    issn = {},
-    doi = {},
-    url = {},
-    eprint = {},
+@misc{https://doi.org/10.48550/arxiv.2210.15093,
+  doi = {10.48550/ARXIV.2210.15093},
+  url = {https://arxiv.org/abs/2210.15093},
+  author = {Samiei, Manoosh and Clark, James J.},
+  keywords = {Computer Vision and Pattern Recognition (cs.CV), Artificial Intelligence (cs.AI), Machine Learning (cs.LG), Image and Video Processing (eess.IV), FOS: Computer and information sciences, FOS: Computer and information sciences, FOS: Electrical engineering, electronic engineering, information engineering, FOS: Electrical engineering, electronic engineering, information engineering, I.2.10; I.4.9; I.4.6; I.4.m},
+  title = {Predicting Visual Attention and Distraction During Visual Search Using Convolutional Neural Networks},
+  publisher = {arXiv},
+  year = {2022},
+  copyright = {Creative Commons Attribution 4.0 International}
 }
 ```
 
