@@ -37,7 +37,7 @@ def GaussianMask(sizex, sizey, sigma=11, center=None, fix=1):
         else:
             return np.zeros((sizey, sizex))
 
-    return fix * np.exp(-0.5 * ((x - x0) ** 2 + (y - y0) ** 2) / sigma ** 2)
+    return fix * (1 / sigma * np.sqrt(2 * np.pi)) * np.exp(-0.5 * ((x - x0) ** 2 + (y - y0) ** 2) / sigma ** 2)
 
 
 def preprocess_fixations(phase,
@@ -108,10 +108,13 @@ def preprocess_fixations(phase,
         heatmap = np.zeros((im_h, im_w), np.float32)
         heatmap_unblurred = np.zeros((im_h, im_w), np.float32)
 
-        x1 = bbox[task_img][0]
-        y1 = bbox[task_img][1]
-        w_image = bbox[task_img][2]
-        h_image = bbox[task_img][3]
+        if task_img in bbox:
+          x1 = bbox[task_img][0]
+          y1 = bbox[task_img][1]
+          w_image = bbox[task_img][2]
+          h_image = bbox[task_img][3]
+        else:
+          x1 = None
 
         for traj in trajs:
 
@@ -140,6 +143,7 @@ def preprocess_fixations(phase,
                     '''
                     heatmap += GaussianMask(im_w, im_h, sigma, (fix[0], fix[1]))
                     heatmap_unblurred[int(fix[1]), int(fix[0])] = 1
+                    target_condition = traj['condition']
 
         # Normalization
         heatmap = heatmap / np.amax(heatmap)
@@ -149,8 +153,10 @@ def preprocess_fixations(phase,
         heatmap_unblurred = heatmap_unblurred / np.amax(heatmap_unblurred)
         heatmap_unblurred_np = heatmap_unblurred * 255
         heatmap_unblurred = heatmap_unblurred_np.astype("uint8")
-
-        source = os.path.join(dldir , 'images' , str(task_img.split('_')[0]) , str(task_img.split('_')[1]))
+        if target_condition =="present":
+          source = os.path.join(dldir , 'images' , str(task_img.split('_')[0]) , str(task_img.split('_')[1]))
+        elif target_condition =="absent":
+          source = os.path.join(dldir , 'coco_search18_images_TA' , str(task_img.split('_')[0]) , str(task_img.split('_')[1]))
         heatmap_flip = cv2.flip(heatmap, 1)
         img = cv2.imread(source)
         img_resized = cv2.resize(img, (im_w, im_h), interpolation=cv2.INTER_AREA)
@@ -187,7 +193,8 @@ def preprocess_fixations(phase,
         target_4 = cv2.resize(target_4, (64, 64), interpolation=cv2.INTER_AREA)
         target_flip_4 = cv2.flip(target_4, 1)
 
-        img_target_frame=cv2.rectangle(img_resized.copy(),(x1,y1),(x1+w_image,y1+h_image),(0,255,0),2)
+        if x1!=None:
+          img_target_frame = cv2.rectangle(img_resized.copy(),(x1,y1),(x1+w_image,y1+h_image),(0,255,0),2)
         
         unblur = False
         flip_f = False
@@ -211,8 +218,8 @@ def preprocess_fixations(phase,
                 target_path_3 = os.path.join(datadir , 'target_3/test' , str(task_img))
                 target_path_4 = os.path.join(datadir , 'target_4/test' , str(task_img))
 
-                img_target_rect_path = os.path.join(datadir , 'stimuli/test_targ_bbox' , str(task_img))
-                cv2.imwrite(img_target_rect_path, img_target_frame)
+                # img_target_rect_path = os.path.join(datadir , 'stimuli/test_targ_bbox' , str(task_img))
+                # cv2.imwrite(img_target_rect_path, img_target_frame)
                 
                 out_name_unblur = os.path.join(datadir , 'saliencymap/test_unblur' , str(task_img))
                 out_name_unblur_npy = os.path.join(datadir , 'saliencymap/test_unblur' , (os.path.splitext(str(task_img))[0]+'.npy'))
@@ -480,21 +487,37 @@ if __name__ == '__main__':
                    'coco_search18_fixations_TP_validation_split1.json')) as json_file:
         human_scanpaths_valid = json.load(json_file)
 
+    with open(join(dataset_root,
+                   'coco_search18_fixations_TA_trainval.json')) as json_file:
+        human_scanpaths_trainval_TA = json.load(json_file)
+
     # exclude incorrect scanpaths
-    human_scanpaths_train = list(
+    human_scanpaths_train_TP = list(
         filter(lambda x: x['correct'] == 1, human_scanpaths_train))
-    human_scanpaths_valid = list(
+    human_scanpaths_valid_TP = list(
         filter(lambda x: x['correct'] == 1, human_scanpaths_valid))
+    human_scanpaths_trainval_TA_correct = list(
+        filter(lambda x: x['correct'] == 1, human_scanpaths_trainval_TA))
+    human_scanpaths_train_TA_correct = list(
+        filter(lambda x: x['split'] == 'train', human_scanpaths_trainval_TA_correct))
+    human_scanpaths_val_TA_correct = list(
+        filter(lambda x: x['split'] == 'valid', human_scanpaths_trainval_TA_correct))
 
-    # process fixation data
+    # Mix target present and target absent datasets
+    human_scanpaths_train = human_scanpaths_train_TP + human_scanpaths_train_TA_correct
+    human_scanpaths_valid = human_scanpaths_valid_TP + human_scanpaths_val_TA_correct
+
+    sigma = 11
+
+    # Process fixation data
     process_data(human_scanpaths_train, human_scanpaths_valid, bbox_annos,
-                           args.sigma, dataset_root, datadir)
+                 sigma, dataset_root, datadir)
 
-    train = next(os.walk(tr_stimuli))[2] 
+    train = next(os.walk(tr_stimuli))[2]
     print(len(train))
 
-    valid = next(os.walk(v_stimuli))[2] 
+    valid = next(os.walk(v_stimuli))[2]
     print(len(valid))
 
-    test = next(os.walk(te_stimuli))[2] 
+    test = next(os.walk(te_stimuli))[2]
     print(len(test))
