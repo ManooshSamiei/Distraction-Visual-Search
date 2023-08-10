@@ -1,4 +1,4 @@
-import pysaliency
+# import pysaliency
 from pysaliency.baseline_utils import BaselineModel, GoldModel
 import argparse
 import os
@@ -37,7 +37,8 @@ def compute_saliency_metrics(data_path, use_pysaliency, csv_path):
 
     dir_saliency_test = data_path + "cocosearch/saliencymap/test"
     dir_saliency_test_unblur = data_path + "cocosearch/saliencymap/test_unblur"
-    dir_stimuli_test = pysaliency.FileStimuli(test_list)
+    if use_pysaliency:
+        dir_stimuli_test = pysaliency.FileStimuli(test_list)
     dir_saliency_test_img = os.path.join("cocosearch/saliencymap" , 'pysaliency_test_sal_img')
     
     if use_pysaliency:
