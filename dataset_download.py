@@ -49,7 +49,7 @@ def download_cocosearch(data_path):
     url = "https://drive.google.com/uc?export=download&id=1vEzgF54LPK2adlI7DdlXWGkYV76L-jjK"
 
     gdown.download(url, os.path.join(data_path,'targets.zip'), quiet=False)
-    # unzip(os.path.join(data_path , 'targets.zip'), data_path)
+    unzip(os.path.join(data_path , 'targets.zip'), data_path)
 
     # Downloading target object bounding box annotation
     url = "https://drive.google.com/uc?id=1OkpX_Md-lFwCo5TB_cq0Qxoe4oEB8eKG"
