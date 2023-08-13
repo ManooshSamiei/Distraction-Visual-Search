@@ -1,5 +1,5 @@
 # import pysaliency
-from pysaliency.baseline_utils import BaselineModel, GoldModel
+# from pysaliency.baseline_utils import BaselineModel, GoldModel
 import argparse
 import os
 import json
