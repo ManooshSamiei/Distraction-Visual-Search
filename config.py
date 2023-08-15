@@ -7,7 +7,7 @@ training or uses the correct version for inference when testing.
 """
 
 PARAMS = {
-    "n_epochs": 7,
+    "n_epochs": 5,
     "batch_size": 1,
     "n_training_steps": 10000,
     "learning_rate": 1e-5,
